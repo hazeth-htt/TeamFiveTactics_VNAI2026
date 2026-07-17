@@ -33,9 +33,8 @@ NestJS sẽ gửi một REST HTTP POST request sang Agent 2 với body JSON như
 Agent 2 xử lý xong và phản hồi với định dạng:
 ```json
 {
-  "reply": "À, thích tự tay sửa đồ điện chứng tỏ em có khả năng thực hành kỹ thuật rất tốt đấy! Khi sửa được một món đồ chạy lại bình thường, em cảm thấy thế nào? Và bố mẹ có ủng hộ sở thích này của em không?",
+  "reply": "À, thích tự tay sửa đồ điện chứng tỏ em có khả năng thực hành kỹ thuật rất tốt đấy! Khi sửa được một món đồ chạy lại bình thường, em cảm thấy thế nào? Bố mẹ có ủng hộ sở thích này của em không?",
   "profile_update": {
-    "context_inferred": "highschool",                         -- Mặc định cố định là học sinh cấp 3
     "trait_scores": {
       "practical_skill": 8,
       "academic_interest": 2,
@@ -56,6 +55,10 @@ Agent 2 xử lý xong và phản hồi với định dạng:
 ---
 
 ## 3. CƠ CHẾ LOGIC CỐT LÕI (AI LOGIC)
+
+### Model Khuyên Dùng: **Qwen 2.5-32B-Instruct hoặc Qwen 2.5-72B-Instruct** (qua OpenRouter/Together AI API)
+*   **Lý do:** Khả năng viết tiếng Việt của Qwen 2.5 đạt độ tự nhiên và thấu cảm rất cao, phù hợp nhất cho đối tượng học sinh cấp 3 (vượt trội hơn hẳn so với DeepSeek hay Llama).
+*   **API Key:** Đăng ký qua OpenRouter để sử dụng chung thư viện OpenAI SDK, tiết kiệm thời gian cài đặt.
 
 ### Giai đoạn 1: Thiết lập kết nối & Khơi gợi thấu cảm (2-3 lượt đầu)
 AI bắt đầu hội thoại bằng câu hỏi mở, thân mật và gần gũi như một người anh/người chị khóa trước. Mục tiêu là giúp học sinh cấp 3 giải tỏa áp lực (từ gia đình, bạn bè, kỳ thi) và cởi mở chia sẻ về sở thích, hoạt động thường ngày hoặc các môn học mà họ cảm thấy thoải mái nhất.
