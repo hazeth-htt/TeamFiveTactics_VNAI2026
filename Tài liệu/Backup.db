@@ -162,3 +162,43 @@ VALUES
   ('Kỹ thuật Ô tô',            'vocational', 'Sửa chữa và bảo dưỡng xe ô tô',                7000000, 18000000, 'Cao đẳng nghề Kỹ thuật Ô tô (2 năm)'),
   ('Đầu bếp / Quản lý F&B',   'vocational', 'Chế biến thực phẩm và quản lý nhà hàng',        6000000, 20000000, 'Trung cấp nghề Du lịch - Nhà hàng (1-2 năm)'),
   ('Điều dưỡng Trung cấp',    'vocational', 'Chăm sóc bệnh nhân và hỗ trợ y tế',             7000000, 15000000, 'Trung cấp Y tế (2 năm)');
+
+
+-- ============================================================
+-- CẬP NHẬT KIẾN TRÚC: XU HƯỚNG VÙNG MIỀN & THỜI GIAN
+-- Lệnh ALTER TABLE để cập nhật cấu trúc bảng career_tracks
+-- ============================================================
+
+ALTER TABLE career_tracks 
+ADD COLUMN local_demand_signals JSONB, -- Lưu xu hướng tuyển dụng, kỹ năng thiếu hụt theo vùng miền
+ADD COLUMN timeline_trends JSONB;      -- Lưu biến động nhu cầu tuyển dụng theo thời gian
+
+-- Cấu trúc JSONB tham khảo của các cột mới thêm:
+--
+-- 1. Cột local_demand_signals:
+-- {
+--   "Binh_Duong": {
+--     "demand_level": "rising",                  -- "rising" | "stable" | "declining"
+--     "average_salary": "9,000,000 - 15,000,000 VND",
+--     "critical_shortage_skills": [
+--       "Lập trình PLC Siemens",
+--       "Đọc bản vẽ mạch điện công nghiệp"
+--     ]
+--   },
+--   "HCM": {
+--     "demand_level": "stable",
+--     "average_salary": "11,000,000 - 18,000,000 VND",
+--     "critical_shortage_skills": [
+--       "Thiết kế hệ thống tự động hóa cơ bản"
+--     ]
+--   }
+-- }
+--
+-- 2. Cột timeline_trends:
+-- {
+--   "monthly_demand_index": {
+--     "2026-01": 100,
+--     "2026-02": 115,
+--     "2026-03": 130  -- Chỉ số thể hiện xu hướng tăng/giảm tuyển dụng theo thời gian
+--   }
+-- }

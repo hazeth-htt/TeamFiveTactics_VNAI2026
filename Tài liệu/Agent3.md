@@ -114,10 +114,10 @@ ai-services/roadmap/
 ├── requirements.txt         # Thư viện Python cần thiết
 ├── .env                     # Lưu trữ API Key & DB URL
 ├── main.py                  # Khởi chạy FastAPI
-├── config.py                # Đọc env & thiết lập DB, OpenAI/Gemini SDK
+├── config.py                # Đọc env & thiết lập DB, OpenAI/Gemini 
 ├── schemas.py               # Validate cấu trúc dữ liệu Input/Output
 ├── prompts.py               # Quản lý System Prompt chống bias
-├── rag_service.py           # Kết nối Pinecone & PostgreSQL để lấy data ngành
+├── rag_service.py           # Kết nối Pinecone & PostgreSQL để lấy 
 └── roadmap_generator.py     # Gọi LLM tổng hợp ra JSON đa lộ trình
 ```
 

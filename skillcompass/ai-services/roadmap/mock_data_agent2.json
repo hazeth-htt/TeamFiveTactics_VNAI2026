@@ -1,0 +1,124 @@
+[
+  {
+    "note": "Hồ sơ Học sinh 1: Rất giỏi logic, thiên hướng Backend/Data",
+    "reply": "Mình hiểu rồi, có vẻ bạn rất thích những thử thách đòi hỏi phải đào sâu suy nghĩ. Với tính cách thích tự mày mò và tư duy logic nhạy bén thế này, chắc chắn bạn sẽ làm rất tốt ở những môi trường cần sự tập trung cao độ. Sắp tới, để mình phân tích vài lộ trình phù hợp với bạn nhé!",
+    "profile_update": {
+      "context_inferred": "highschool",
+      "trait_scores": {
+        "introvert_vs_extrovert": 3,
+        "analytical_vs_creative": 8,
+        "theoretical_vs_practical": 6,
+        "logical_thinking": 9,
+        "problem_solving": 8,
+        "team_collaboration": 4
+      },
+      "market_expectations": {
+        "preferred_locations": ["Hà Nội", "Hồ Chí Minh"],
+        "expected_salary_min": 15000000,
+        "willing_to_relocate": true
+      },
+      "confidence_scores": {
+        "logical_thinking": 0.9,
+        "problem_solving": 0.85,
+        "team_collaboration": 0.8
+      }
+    },
+    "is_ready": true
+  },
+  {
+    "note": "Hồ sơ Học sinh 2: Năng nổ, giao tiếp tốt, thiên hướng Sale B2B/Marketing",
+    "reply": "Trời, nghe bạn kể vụ làm MC sự kiện ở trường hấp dẫn quá! Khả năng ăn nói và ứng biến nhanh của bạn chắc chắn là một lợi thế cực lớn luôn đó. Với mong muốn làm việc ở một nơi năng động, mình chuẩn bị gợi ý cho bạn vài ngành nghề đảm bảo không bao giờ nhàm chán luôn. Bạn sẵn sàng chưa?",
+    "profile_update": {
+      "context_inferred": "highschool_event_club",
+      "trait_scores": {
+        "introvert_vs_extrovert": 9,
+        "analytical_vs_creative": 4,
+        "theoretical_vs_practical": 8,
+        "social_interaction": 9,
+        "persuasion_negotiation": 8,
+        "number_sensitivity": 5
+      },
+      "market_expectations": {
+        "preferred_locations": ["Đà Nẵng"],
+        "expected_salary_min": 10000000,
+        "willing_to_relocate": false
+      },
+      "confidence_scores": {
+        "social_interaction": 0.92,
+        "persuasion_negotiation": 0.88,
+        "introvert_vs_extrovert": 0.95
+      }
+    },
+    "is_ready": true
+  },
+  {
+    "note": "Hồ sơ Học sinh 3: Thích nghệ thuật, tự kỷ, cái tôi cao",
+    "reply": "Những ý tưởng thiết kế của bạn có vẻ rất bay bổng và phá cách. Việc bạn không thích sự gò bó cũng dễ hiểu thôi, vì những tâm hồn nghệ sĩ thường cần không gian riêng để thăng hoa mà. Với mong muốn tự do sáng tạo thế này, mình nghĩ có một số ngành rất hợp với 'gout' của bạn đấy.",
+    "profile_update": {
+      "context_inferred": "highschool",
+      "trait_scores": {
+        "introvert_vs_extrovert": 3,
+        "analytical_vs_creative": 2,
+        "theoretical_vs_practical": 7,
+        "creative_expression": 9,
+        "aesthetics": 9,
+        "attention_to_detail": 7
+      },
+      "market_expectations": {
+        "preferred_locations": ["Hà Nội", "Remote"],
+        "expected_salary_min": 12000000,
+        "willing_to_relocate": false
+      },
+      "confidence_scores": {
+        "creative_expression": 0.85,
+        "aesthetics": 0.88
+      }
+    },
+    "is_ready": true
+  },
+  {
+    "note": "Hồ sơ Học sinh 4: Thích sửa đồ, thực hành, không thích lý thuyết suông",
+    "reply": "Nghe bạn kể chuyện tự tháo tung cái quạt máy ra sửa rồi lắp lại mà mình nể thật sự! Bạn cực kỳ có năng khiếu thực hành và không ngại làm việc tay chân. Những người có kỹ năng thực chiến như bạn ra trường các doanh nghiệp rất săn đón đấy. Mình sẽ tổng hợp kết quả ngay bây giờ nhé.",
+    "profile_update": {
+      "context_inferred": "highschool",
+      "trait_scores": {
+        "introvert_vs_extrovert": 5,
+        "analytical_vs_creative": 7,
+        "theoretical_vs_practical": 10,
+        "practical_hands_on": 9,
+        "immediate_result_focus": 8
+      },
+      "market_expectations": {
+        "preferred_locations": ["Bình Dương", "Đồng Nai"],
+        "expected_salary_min": 8000000,
+        "willing_to_relocate": true
+      },
+      "confidence_scores": {
+        "practical_hands_on": 0.9,
+        "theoretical_vs_practical": 0.95
+      }
+    },
+    "is_ready": true
+  },
+  {
+    "note": "Hồ sơ Học sinh 5: Tình trạng đang dang dở (Chưa đủ thông tin, is_ready: false)",
+    "reply": "À mình hiểu rồi, bạn cũng thích thiết kế nhưng lại muốn công việc có tính ổn định cao. Vậy bình thường lúc làm bài nhóm hoặc tham gia ngoại khóa, bạn thích là người đưa ra ý tưởng thiết kế, hay thích là người sắp xếp công việc cho các bạn khác làm?",
+    "profile_update": {
+      "context_inferred": "highschool",
+      "trait_scores": {
+        "introvert_vs_extrovert": 6,
+        "creative_expression": 6
+      },
+      "market_expectations": {
+        "preferred_locations": [],
+        "expected_salary_min": 0,
+        "willing_to_relocate": false
+      },
+      "confidence_scores": {
+        "introvert_vs_extrovert": 0.6,
+        "creative_expression": 0.4
+      }
+    },
+    "is_ready": false
+  }
+]

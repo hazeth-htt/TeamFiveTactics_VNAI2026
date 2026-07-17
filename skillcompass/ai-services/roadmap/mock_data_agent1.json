@@ -1,0 +1,137 @@
+[
+  {
+    "career_track": "Backend Developer",
+    "field": "IT",
+    "location_data": {
+      "province": "Hà Nội",
+      "salary_range": [15000000, 30000000],
+      "trend_score": 0.85,
+      "risk_of_unemployment": "Low",
+      "market_insight": "Nhu cầu tuyển dụng cao, yêu cầu kinh nghiệm làm việc với hệ thống chịu tải."
+    },
+    "required_traits": {
+      "introvert_vs_extrovert": 3,
+      "analytical_vs_creative": 8,
+      "theoretical_vs_practical": 7,
+      "logical_thinking": 9,
+      "problem_solving": 9,
+      "continuous_learning": 8,
+      "team_collaboration": 5
+    }
+  },
+  {
+    "career_track": "Frontend Developer",
+    "field": "IT",
+    "location_data": {
+      "province": "Hồ Chí Minh",
+      "salary_range": [12000000, 25000000],
+      "trend_score": 0.80,
+      "risk_of_unemployment": "Medium",
+      "market_insight": "Cạnh tranh cao ở level Fresher/Junior, yêu cầu kiến thức UI/UX tốt."
+    },
+    "required_traits": {
+      "introvert_vs_extrovert": 5,
+      "analytical_vs_creative": 6,
+      "theoretical_vs_practical": 8,
+      "logical_thinking": 7,
+      "problem_solving": 7,
+      "continuous_learning": 8,
+      "team_collaboration": 7
+    }
+  },
+  {
+    "career_track": "Digital Marketing Specialist",
+    "field": "Business",
+    "location_data": {
+      "province": "Đà Nẵng",
+      "salary_range": [8000000, 20000000],
+      "trend_score": 0.75,
+      "risk_of_unemployment": "Low",
+      "market_insight": "Cần đa năng, biết tối ưu quảng cáo và làm nội dung."
+    },
+    "required_traits": {
+      "introvert_vs_extrovert": 7,
+      "analytical_vs_creative": 6,
+      "theoretical_vs_practical": 8,
+      "social_interaction": 8,
+      "persuasion_negotiation": 7,
+      "number_sensitivity": 6
+    }
+  },
+  {
+    "career_track": "Sales B2B Executive",
+    "field": "Business",
+    "location_data": {
+      "province": "Hồ Chí Minh",
+      "salary_range": [10000000, 50000000],
+      "trend_score": 0.90,
+      "risk_of_unemployment": "Low",
+      "market_insight": "Luôn khát nhân sự giỏi, thu nhập chủ yếu từ hoa hồng."
+    },
+    "required_traits": {
+      "introvert_vs_extrovert": 9,
+      "analytical_vs_creative": 4,
+      "theoretical_vs_practical": 9,
+      "social_interaction": 10,
+      "persuasion_negotiation": 9,
+      "number_sensitivity": 5
+    }
+  },
+  {
+    "career_track": "UX/UI Designer",
+    "field": "Art",
+    "location_data": {
+      "province": "Hà Nội",
+      "salary_range": [12000000, 28000000],
+      "trend_score": 0.82,
+      "risk_of_unemployment": "Medium",
+      "market_insight": "Xu hướng thiết kế sản phẩm số tăng cao, cần hiểu biết về trải nghiệm người dùng."
+    },
+    "required_traits": {
+      "introvert_vs_extrovert": 4,
+      "analytical_vs_creative": 2,
+      "theoretical_vs_practical": 8,
+      "creative_expression": 8,
+      "aesthetics": 9,
+      "attention_to_detail": 8
+    }
+  },
+  {
+    "career_track": "Kỹ Thuật Viên Sửa Chữa Ô Tô",
+    "field": "Vocational",
+    "location_data": {
+      "province": "Bình Dương",
+      "salary_range": [9000000, 20000000],
+      "trend_score": 0.88,
+      "risk_of_unemployment": "Low",
+      "market_insight": "Thị trường ô tô cá nhân bùng nổ, rất thiếu thợ tay nghề cao."
+    },
+    "required_traits": {
+      "introvert_vs_extrovert": 5,
+      "analytical_vs_creative": 8,
+      "theoretical_vs_practical": 10,
+      "practical_hands_on": 9,
+      "immediate_result_focus": 8
+    }
+  },
+  {
+    "career_track": "Data Analyst",
+    "field": "IT",
+    "location_data": {
+      "province": "Hà Nội",
+      "salary_range": [14000000, 35000000],
+      "trend_score": 0.95,
+      "risk_of_unemployment": "Low",
+      "market_insight": "Nhu cầu phân tích dữ liệu kinh doanh rất lớn trong các tập đoàn."
+    },
+    "required_traits": {
+      "introvert_vs_extrovert": 4,
+      "analytical_vs_creative": 9,
+      "theoretical_vs_practical": 6,
+      "logical_thinking": 9,
+      "problem_solving": 8,
+      "number_sensitivity": 9,
+      "team_collaboration": 6
+    }
+  }
+]
