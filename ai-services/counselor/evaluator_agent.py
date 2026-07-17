@@ -1,35 +1,57 @@
+import config
 import json
-import re
-from config import client, LLM_MODEL
 from prompts import EVALUATOR_SYSTEM_PROMPT
 
-def evaluate_profile(conversation_history: list, latest_message: str) -> dict:
-    # Default fallback data if API key is not set or call fails
+def build_dynamic_evaluator_prompt(traits_to_evaluate: dict) -> str:
+    traits_desc = ""
+    default_traits_json = {}
+    default_confidence_json = {}
+    
+    for key, desc in traits_to_evaluate.items():
+        traits_desc += f"- {key}: {desc}\n"
+        default_traits_json[key] = 5
+        default_confidence_json[key] = 0.0
+
+    prompt = EVALUATOR_SYSTEM_PROMPT.format(
+        traits_desc=traits_desc,
+        default_traits_json=json.dumps(default_traits_json),
+        default_confidence_json=json.dumps(default_confidence_json)
+    )
+    return prompt
+
+def evaluate_profile(conversation_history: list, latest_message: str, evaluation_framework: dict) -> dict:
+    # Extract traits from updated evaluation_framework
+    traits = evaluation_framework.get("traits_to_evaluate", {})
+    if not isinstance(traits, dict):
+        traits = {}
+
+    # Build dynamic default response based on framework keys
+    default_traits = {k: 5 for k in traits.keys()}
+    default_confidence = {k: 0.1 for k in traits.keys()}
+    
     default_response = {
-        "trait_scores": {
-            "practical_skill": 5,
-            "academic_interest": 5,
-            "social_interaction": 5,
-            "analytical_thinking": 5
-        },
-        "confidence_scores": {
-            "practical_skill": 0.1,
-            "academic_interest": 0.1,
-            "social_interaction": 0.1,
-            "analytical_thinking": 0.1
+        "context_inferred": "highschool",
+        "trait_scores": default_traits,
+        "confidence_scores": default_confidence,
+        "market_expectations": {
+            "preferred_locations": [],
+            "expected_salary_min": 0,
+            "willing_to_relocate": False
         },
         "is_ready": False
     }
 
-    if not client:
-        # If no client, trigger is_ready after 6 turns for demo purposes
-        if len(conversation_history) >= 6:
+    # Simulate responses for testing if LLM key is placeholder
+    if not config.LLM_API_KEY or config.LLM_API_KEY == "placeholder_replace_me":
+        user_turns = sum(1 for m in conversation_history if m.get('role') == 'user') + 1
+        if user_turns >= 6:
             default_response["is_ready"] = True
-            default_response["trait_scores"] = {
-                "practical_skill": 8,
-                "academic_interest": 3,
-                "social_interaction": 5,
-                "analytical_thinking": 7
+            default_response["trait_scores"] = {k: 8 if i % 2 == 0 else 4 for i, k in enumerate(traits.keys())}
+            default_response["confidence_scores"] = {k: 0.85 for k in traits.keys()}
+            default_response["market_expectations"] = {
+                "preferred_locations": ["Hà Nội"],
+                "expected_salary_min": 15000000,
+                "willing_to_relocate": True
             }
         return default_response
 
@@ -40,33 +62,93 @@ def evaluate_profile(conversation_history: list, latest_message: str) -> dict:
             transcript += f"{msg['role']}: {msg['content']}\n"
         transcript += f"user: {latest_message}\n"
 
-        messages = [
-            {"role": "system", "content": EVALUATOR_SYSTEM_PROMPT},
-            {"role": "user", "content": f"Hãy phân tích lịch sử hội thoại sau và trả về điểm số:\n\n{transcript}"}
-        ]
-
-        # Call LLM with JSON format constraints
-        response = client.chat.completions.create(
-            model=LLM_MODEL,
-            messages=messages,
-            temperature=0.1, # Low temperature for consistent scoring
-            response_format={"type": "json_object"}
+        system_instruction = build_dynamic_evaluator_prompt(traits)
+        
+        # Call LLM with JSON response format enabled
+        response_text = config.call_llm(
+            system_instruction=system_instruction,
+            messages=[{"role": "user", "content": f"Hãy phân tích lịch sử hội thoại sau và chấm điểm:\n\n{transcript}"}],
+            response_json=True,
+            temperature=0.1
         )
 
-        content = response.choices[0].message.content.strip()
+        parsed_json = json.loads(response_text)
         
-        # Clean potential markdown JSON wraps (just in case)
-        if content.startswith("```"):
-            content = re.sub(r"^```json\s*", "", content)
-            content = re.sub(r"\s*```$", "", content)
+        # Sanitize and validate keys/types returned by LLM
+        if "trait_scores" not in parsed_json:
+            parsed_json["trait_scores"] = default_traits
+        if "confidence_scores" not in parsed_json:
+            parsed_json["confidence_scores"] = default_confidence
+        if "market_expectations" not in parsed_json:
+            parsed_json["market_expectations"] = default_response["market_expectations"]
             
-        parsed_json = json.loads(content)
+        clean_traits = {}
+        clean_confidence = {}
+        for k in traits.keys():
+            # Validate traits score is int (1-10)
+            score = parsed_json["trait_scores"].get(k, 5)
+            try:
+                score = int(score)
+                if not (1 <= score <= 10):
+                    score = 5
+            except (ValueError, TypeError):
+                score = 5
+            clean_traits[k] = score
+            
+            # Validate confidence score is float (0.0-1.0)
+            conf = parsed_json["confidence_scores"].get(k, 0.0)
+            try:
+                conf = float(conf)
+                if not (0.0 <= conf <= 1.0):
+                    conf = 0.0
+            except (ValueError, TypeError):
+                conf = 0.0
+            clean_confidence[k] = conf
+            
+        parsed_json["trait_scores"] = clean_traits
+        parsed_json["confidence_scores"] = clean_confidence
+
+        # Clean market expectations
+        me = parsed_json.get("market_expectations", {})
+        if not isinstance(me, dict):
+            me = {}
+            
+        preferred_locations = me.get("preferred_locations", [])
+        if not isinstance(preferred_locations, list):
+            preferred_locations = [preferred_locations] if preferred_locations else []
+        preferred_locations = [str(loc).strip() for loc in preferred_locations if loc]
         
-        # Validate that the parsed JSON has required fields
-        if "trait_scores" in parsed_json and "confidence_scores" in parsed_json:
-            return parsed_json
-            
-        return default_response
+        expected_salary_min = me.get("expected_salary_min", 0)
+        try:
+            expected_salary_min = int(expected_salary_min)
+        except (ValueError, TypeError):
+            expected_salary_min = 0
+                
+        willing_to_relocate = me.get("willing_to_relocate", False)
+        if isinstance(willing_to_relocate, str):
+            willing_to_relocate = willing_to_relocate.lower() in ("true", "yes", "y", "1")
+        else:
+            willing_to_relocate = bool(willing_to_relocate)
+                
+        parsed_json["market_expectations"] = {
+            "preferred_locations": preferred_locations,
+            "expected_salary_min": expected_salary_min,
+            "willing_to_relocate": willing_to_relocate
+        }
+
+        # Statically set context_inferred as highschool
+        parsed_json["context_inferred"] = "highschool"
+
+        # Calculate is_ready programmatically for high accuracy
+        user_turns = sum(1 for m in conversation_history if m.get('role') == 'user') + 1
+        avg_confidence = sum(clean_confidence.values()) / len(clean_confidence) if clean_confidence else 0.0
+        
+        is_ready_inferred = parsed_json.get("is_ready", False)
+        # Force is_ready to True if average confidence > 0.8 or turns >= 15
+        is_ready = is_ready_inferred or (avg_confidence >= 0.8) or (user_turns >= 15)
+        parsed_json["is_ready"] = is_ready
+
+        return parsed_json
     except Exception as e:
-        print(f"Error calling LLM or parsing JSON in evaluator_agent: {e}")
+        print(f"Error calling LLM or parsing response in evaluator_agent: {e}")
         return default_response

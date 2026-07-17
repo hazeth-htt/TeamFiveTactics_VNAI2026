@@ -1,17 +1,8 @@
 -- ============================================================
--- SKILLCOMPASS — PostgreSQL Schema
--- Ghi chú:
---   Nhóm A: Agent 1 ghi (market data, chạy offline trước demo)
---   Nhóm B: NestJS ghi (user data, ghi trong runtime)
+-- NHÓM A: DỮ LIỆU ĐỊNH HƯỚNG NGHỀ NGHIỆP (HỆ THỐNG)
 -- ============================================================
 
-
--- ============================================================
--- NHÓM A: MARKET DATA (Agent 1 offline pipeline ghi vào)
--- ============================================================
-
--- Bảng career_tracks: Danh sách tất cả ngành nghề
--- Agent 1 ghi, Agent 3 embed + ghi vector_id vào đây
+-- 1. Bảng career_tracks: Danh mục các ngành nghề hướng nghiệp
 CREATE TABLE career_tracks (
     id              SERIAL PRIMARY KEY,
     career_track    VARCHAR(100)    NOT NULL,               -- "Data Science", "Kỹ thuật Ô tô"
@@ -27,7 +18,7 @@ CREATE TABLE career_tracks (
     created_at      TIMESTAMP DEFAULT NOW()
 );
 
--- Bảng role_progressions: Lộ trình vị trí của từng career track
+-- 2. Bảng role_progressions: Lộ trình vị trí công việc của từng career track
 CREATE TABLE role_progressions (
     id              SERIAL PRIMARY KEY,
     career_track_id INTEGER NOT NULL REFERENCES career_tracks(id) ON DELETE CASCADE,
@@ -38,7 +29,7 @@ CREATE TABLE role_progressions (
     sort_order      INTEGER DEFAULT 0                       -- thứ tự hiển thị
 );
 
--- Bảng skill_trees: Kỹ năng cần thiết theo từng career track
+-- 3. Bảng skill_trees: Kỹ năng cần thiết theo từng career track
 CREATE TABLE skill_trees (
     id              SERIAL PRIMARY KEY,
     career_track_id INTEGER NOT NULL REFERENCES career_tracks(id) ON DELETE CASCADE,
@@ -49,28 +40,29 @@ CREATE TABLE skill_trees (
 
 
 -- ============================================================
--- NHÓM B: USER DATA (NestJS ghi trong runtime)
+-- NHÓM B: DỮ LIỆU NGƯỜI DÙNG & TIẾN TRÌNH CHAT AI (NestJS ghi)
 -- ============================================================
+
+-- 4. Bảng users: Quản lý tài khoản (Đăng ký hoặc ẩn danh)
 CREATE TABLE users (
     id              SERIAL PRIMARY KEY,
     username        VARCHAR(100) UNIQUE,                    -- Dùng cho login (custom JWT Auth)
     email           VARCHAR(255) UNIQUE NOT NULL,           -- Email đăng ký tài khoản
     password_hash   VARCHAR(255) NOT NULL,                  -- Mật khẩu mã hóa lưu trên DB của NestJS
-    anonymous_id    UUID UNIQUE,                            -- Dùng để định danh nếu là người dùng vãng lai (không đăng nhập)
+    anonymous_id    UUID UNIQUE,                            -- Dùng để định danh nếu là khách vãng lai
     created_at      TIMESTAMP DEFAULT NOW()
 );
 
--- Bảng sessions: Mỗi phiên trò chuyện
+-- 5. Bảng sessions: Phiên trò chuyện của học sinh
 CREATE TABLE sessions (
     id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id         INTEGER REFERENCES users(id) ON DELETE SET NULL,
     started_at      TIMESTAMP DEFAULT NOW(),
     ended_at        TIMESTAMP,
-    is_complete     BOOLEAN DEFAULT FALSE                   -- true khi đã generate xong roadmap
+    is_complete     BOOLEAN DEFAULT FALSE                   -- true khi đã generate xong roadmap cho học sinh
 );
 
--- Bảng conversation_messages: Backup lịch sử chat (Redis là primary, bảng này là backup)
--- NestJS ghi song song với Redis để đảm bảo không mất data
+-- 6. Bảng conversation_messages: Backup lịch sử chat (Redis là primary, PostgreSQL để lưu trữ lâu dài)
 CREATE TABLE conversation_messages (
     id              SERIAL PRIMARY KEY,
     session_id      UUID NOT NULL REFERENCES sessions(id) ON DELETE CASCADE,
@@ -80,126 +72,27 @@ CREATE TABLE conversation_messages (
     created_at      TIMESTAMP DEFAULT NOW()
 );
 
--- Bảng user_profiles: Kết quả phân tích từ Agent 2 (Evaluator)
--- NestJS ghi mỗi khi nhận profile_update từ Agent 2
+-- 7. Bảng user_profiles: Kết quả phân tích tính cách, thế mạnh từ Agent 2 (Evaluator)
+-- ĐÃ LOẠI BỎ trường context_inferred theo yêu cầu
 CREATE TABLE user_profiles (
-    id              SERIAL PRIMARY KEY,
-    session_id      UUID UNIQUE NOT NULL REFERENCES sessions(id) ON DELETE CASCADE,
-    context_inferred VARCHAR(20)                            -- "highschool" | "vocational" | "college"
-                    CHECK (context_inferred IN ('highschool', 'vocational', 'college')),
-    trait_scores    JSONB,                                  -- { "creativity": 7, "teamwork": 5, ... }
-    confidence_scores JSONB,                                -- { "creativity": 0.85, "teamwork": 0.9 }
-    is_ready        BOOLEAN DEFAULT FALSE,                  -- true = đủ data để gọi Agent 3
-    updated_at      TIMESTAMP DEFAULT NOW()
+    id                SERIAL PRIMARY KEY,
+    session_id        UUID UNIQUE NOT NULL REFERENCES sessions(id) ON DELETE CASCADE,
+    trait_scores      JSONB,                                  -- { "logical_thinking": 8, "creativity": 7, "favorite_subjects": ["Toán", "Anh"] }
+    confidence_scores JSONB,                                  -- { "logical_thinking": 0.85, "creativity": 0.9 }
+    is_ready          BOOLEAN DEFAULT FALSE,                  -- true = đủ dữ liệu để kích hoạt Agent 3 vẽ roadmap
+    updated_at        TIMESTAMP DEFAULT NOW()
 );
 
--- Bảng roadmaps: Kết quả đa lộ trình từ Agent 3
--- NestJS ghi sau khi nhận response từ Agent 3
+-- 8. Bảng roadmaps: Kết quả lộ trình học tập/nghề nghiệp chi tiết từ Agent 3 (Generator)
 CREATE TABLE roadmaps (
     id                   SERIAL PRIMARY KEY,
     session_id           UUID UNIQUE NOT NULL REFERENCES sessions(id) ON DELETE CASCADE,
-    user_profile_summary TEXT,                              -- tóm tắt hồ sơ bằng ngôn ngữ tự nhiên
-    paths                JSONB NOT NULL,                    -- mảng các lộ trình (xem cấu trúc bên dưới)
-    disclaimer           TEXT NOT NULL,                     -- bắt buộc hiển thị cho user
+    user_profile_summary TEXT,                               -- tóm tắt ngắn gọn thế mạnh của học sinh dưới dạng văn bản
+    paths                JSONB NOT NULL,                     -- mảng các bước đi, tổ hợp môn thi, trường ĐH/Cao đẳng gợi ý
+    disclaimer           TEXT NOT NULL,                      -- lời khuyên/cảnh báo mang tính tham khảo cho học sinh
     generated_at         TIMESTAMP DEFAULT NOW()
 );
-
--- Cấu trúc JSONB của cột "paths" trong bảng roadmaps:
--- [
---   {
---     "path_id": 1,
---     "track_type": "academic",
---     "career_track": "Data Science",
---     "education_route": "Đại học CNTT",
---     "match_score": 88,
---     "why_it_fits": "Bạn có tư duy phân tích...",
---     "role_progression": [
---       { "level": "Entry", "title": "Data Analyst Intern", "description": "..." },
---       { "level": "Mid",   "title": "Senior Data Analyst", "description": "..." }
---     ],
---     "skill_tree": {
---       "fundamentals": ["Toán Thống kê", "Excel"],
---       "core_technologies": ["SQL", "Python"],
---       "advanced_skills": ["Machine Learning"]
---     }
---   },
---   {
---     "path_id": 2,
---     "track_type": "vocational",
---     ...
---   }
--- ]
-
-
--- ============================================================
--- INDEXES (tối ưu truy vấn thường dùng)
--- ============================================================
-
-CREATE INDEX idx_sessions_user_id     ON sessions(user_id);
-CREATE INDEX idx_messages_session_id  ON conversation_messages(session_id);
-CREATE INDEX idx_profiles_session_id  ON user_profiles(session_id);
-CREATE INDEX idx_roadmaps_session_id  ON roadmaps(session_id);
-CREATE INDEX idx_tracks_type          ON career_tracks(track_type);
-CREATE INDEX idx_roles_track_id       ON role_progressions(career_track_id);
-CREATE INDEX idx_skills_track_id      ON skill_trees(career_track_id);
-
--- GIN index cho JSONB (tìm kiếm trong trait_scores, paths)
-CREATE INDEX idx_profiles_traits      ON user_profiles USING GIN (trait_scores);
-CREATE INDEX idx_roadmaps_paths       ON roadmaps USING GIN (paths);
-
-
--- ============================================================
--- DỮ LIỆU MẪU KIỂM TRA (optional — xóa khi production)
--- ============================================================
-
-INSERT INTO career_tracks (career_track, track_type, description, avg_salary_min, avg_salary_max, education_route)
-VALUES
-  ('Data Science / Analytics', 'academic',   'Phân tích dữ liệu và xây dựng mô hình dự đoán', 12000000, 35000000, 'Đại học CNTT, Toán Ứng dụng hoặc Kinh tế'),
-  ('Software Engineering',     'academic',   'Phát triển phần mềm và hệ thống',               10000000, 40000000, 'Đại học CNTT hoặc Kỹ thuật Phần mềm'),
-  ('UI/UX Design',             'academic',   'Thiết kế trải nghiệm người dùng',                8000000, 25000000, 'Đại học Thiết kế Đồ họa hoặc CNTT'),
-  ('Marketing Digital',        'academic',   'Tiếp thị số và quản lý thương hiệu online',      7000000, 20000000, 'Đại học Marketing hoặc Kinh tế'),
-  ('Kỹ thuật Tự động hóa/PLC', 'vocational', 'Vận hành và lập trình hệ thống tự động hóa',    8000000, 22000000, 'Cao đẳng nghề Điện - Tự động hóa (1.5-2 năm)'),
-  ('Kỹ thuật Ô tô',            'vocational', 'Sửa chữa và bảo dưỡng xe ô tô',                7000000, 18000000, 'Cao đẳng nghề Kỹ thuật Ô tô (2 năm)'),
-  ('Đầu bếp / Quản lý F&B',   'vocational', 'Chế biến thực phẩm và quản lý nhà hàng',        6000000, 20000000, 'Trung cấp nghề Du lịch - Nhà hàng (1-2 năm)'),
-  ('Điều dưỡng Trung cấp',    'vocational', 'Chăm sóc bệnh nhân và hỗ trợ y tế',             7000000, 15000000, 'Trung cấp Y tế (2 năm)');
-
-
--- ============================================================
--- CẬP NHẬT KIẾN TRÚC: XU HƯỚNG VÙNG MIỀN & THỜI GIAN
--- Lệnh ALTER TABLE để cập nhật cấu trúc bảng career_tracks
--- ============================================================
 
 ALTER TABLE career_tracks 
 ADD COLUMN local_demand_signals JSONB, -- Lưu xu hướng tuyển dụng, kỹ năng thiếu hụt theo vùng miền
 ADD COLUMN timeline_trends JSONB;      -- Lưu biến động nhu cầu tuyển dụng theo thời gian
-
--- Cấu trúc JSONB tham khảo của các cột mới thêm:
---
--- 1. Cột local_demand_signals:
--- {
---   "Binh_Duong": {
---     "demand_level": "rising",                  -- "rising" | "stable" | "declining"
---     "average_salary": "9,000,000 - 15,000,000 VND",
---     "critical_shortage_skills": [
---       "Lập trình PLC Siemens",
---       "Đọc bản vẽ mạch điện công nghiệp"
---     ]
---   },
---   "HCM": {
---     "demand_level": "stable",
---     "average_salary": "11,000,000 - 18,000,000 VND",
---     "critical_shortage_skills": [
---       "Thiết kế hệ thống tự động hóa cơ bản"
---     ]
---   }
--- }
---
--- 2. Cột timeline_trends:
--- {
---   "monthly_demand_index": {
---     "2026-01": 100,
---     "2026-02": 115,
---     "2026-03": 130  -- Chỉ số thể hiện xu hướng tăng/giảm tuyển dụng theo thời gian
---   }
--- }
-

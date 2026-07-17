@@ -21,6 +21,19 @@ NestJS sẽ gửi một REST HTTP POST request sang Agent 2 với body JSON như
 {
   "session_id": "8a7f23c9-0b1d-4e92-a1f8-bc5a6d7e8f9c",
   "message": "Em thích vọc vạch sửa đồ điện trong nhà hơn là học mấy môn lý thuyết.",
+  "target_field": "Vocational",
+  "evaluation_framework": {
+    "general_base_questions": [
+      "Khi có thời gian rảnh rỗi, bạn thường ưu tiên làm những việc gì để thư giãn?"
+    ],
+    "field_specific_base_questions": [
+      "Bạn thích những công việc thiên về vận động tay chân hay nghiêng về những công việc nhẹ nhàng, ít phải di chuyển hơn?"
+    ],
+    "traits_to_evaluate": {
+      "practical_hands_on": "Thích thực hành tay chân, thao tác với công cụ.",
+      "physical_stamina": "Chịu đựng áp lực thể chất, sức khỏe tốt."
+    }
+  },
   "conversation_history": [
     { "role": "assistant", "content": "Chào em, anh có thể hỗ trợ gì cho em hôm nay?" },
     { "role": "user", "content": "Chào anh, em đang học lớp 11 và thấy hoang mang không biết ra trường làm gì." },
@@ -33,19 +46,21 @@ NestJS sẽ gửi một REST HTTP POST request sang Agent 2 với body JSON như
 Agent 2 xử lý xong và phản hồi với định dạng:
 ```json
 {
-  "reply": "À, thích tự tay sửa đồ điện chứng tỏ em có khả năng thực hành kỹ thuật rất tốt đấy! Khi sửa được một món đồ chạy lại bình thường, em cảm thấy thế nào? Bố mẹ có ủng hộ sở thích này của em không?",
+  "reply": "Thích tự tay sửa đồ điện chứng tỏ bạn có khả năng thực hành kỹ thuật rất tốt đấy! Sửa chữa thường mất sức, vậy thể chất của bạn có tốt không, vì các ngành kỹ thuật hay phải vận động nhiều? Sẵn tiện cho mình hỏi, sau này ra trường bạn dự định làm ở quê cho gần nhà hay lên thành phố lớn?",
   "profile_update": {
+    "context_inferred": "highschool",                         -- Mặc định cố định là học sinh cấp 3
     "trait_scores": {
-      "practical_skill": 8,
-      "academic_interest": 2,
-      "social_interaction": 4,
-      "analytical_thinking": 6
+      "practical_hands_on": 8,
+      "physical_stamina": 0
+    },
+    "market_expectations": {                                  -- MỚI: Yếu tố thị trường & Địa lý
+      "preferred_locations": [],
+      "expected_salary_min": 0,
+      "willing_to_relocate": false
     },
     "confidence_scores": {
-      "practical_skill": 0.75,
-      "academic_interest": 0.8,
-      "social_interaction": 0.3,
-      "analytical_thinking": 0.5
+      "practical_hands_on": 0.85,
+      "physical_stamina": 0.1
     }
   },
   "is_ready": false
@@ -56,20 +71,14 @@ Agent 2 xử lý xong và phản hồi với định dạng:
 
 ## 3. CƠ CHẾ LOGIC CỐT LÕI (AI LOGIC)
 
-### Model Khuyên Dùng: **Qwen 2.5-32B-Instruct hoặc Qwen 2.5-72B-Instruct** (qua OpenRouter/Together AI API)
-*   **Lý do:** Khả năng viết tiếng Việt của Qwen 2.5 đạt độ tự nhiên và thấu cảm rất cao, phù hợp nhất cho đối tượng học sinh cấp 3 (vượt trội hơn hẳn so với DeepSeek hay Llama).
-*   **API Key:** Đăng ký qua OpenRouter để sử dụng chung thư viện OpenAI SDK, tiết kiệm thời gian cài đặt.
+### Giai đoạn 1: Thiết lập kết nối & Base Questions Tầng 1 (General)
+AI đóng vai một người bạn đồng trang lứa (xưng "mình - bạn" điềm đạm). Khởi đầu bằng các câu hỏi mỏ neo Tầng 1 (`general_base_questions`) để giúp user cởi mở chia sẻ về sở thích nền tảng, tạo sự thoải mái. Không tự chế câu hỏi dài dòng.
 
-### Giai đoạn 1: Thiết lập kết nối & Khơi gợi thấu cảm (2-3 lượt đầu)
-AI bắt đầu hội thoại bằng câu hỏi mở, thân mật và gần gũi như một người anh/người chị khóa trước. Mục tiêu là giúp học sinh cấp 3 giải tỏa áp lực (từ gia đình, bạn bè, kỳ thi) và cởi mở chia sẻ về sở thích, hoạt động thường ngày hoặc các môn học mà họ cảm thấy thoải mái nhất.
-
-### Giai đoạn 2: Deep Profiling & Guided State Machine (Phần chính)
-Agent 2B giám sát tiến độ thu thập dữ liệu dựa trên **Base Questionnaire Framework** dành riêng cho học sinh cấp 3:
-- **Nhóm tiêu chí cần đánh giá:**
-  1. *Động lực cốt lõi* (Học vì đam mê, kỳ vọng gia đình, hay mục tiêu tài chính sớm)
-  2. *Thiên hướng tư duy* (Thích hành động thực tế - sửa chữa/lắp ráp, hay thích lý thuyết/tính toán, hay sáng tạo nghệ thuật)
-  3. *Phong cách tương tác* (Thích làm việc độc lập một mình hay thích hoạt động đội nhóm/giao tiếp nhiều)
-  4. *Khả năng đối diện áp lực học tập và học kỹ năng mới*
+### Giai đoạn 2: Deep Profiling & Base Questions Tầng 2 (Specific)
+Agent 2B đóng vai "Đạo diễn ngầm" giám sát tiến độ thu thập dữ liệu và điều hướng Agent 2A:
+- **Chuyển Phase:** Khi thu thập đủ tính cách nền tảng, Agent 2B lệnh cho Agent 2A chuyển sang hỏi mỏ neo Tầng 2 (`field_specific_base_questions`) để đánh giá chuyên môn ngành nghề đã chọn.
+- **Deep-dive chủ động:** Khi user vô tình nhắc đến một manh mối liên quan đến các tiêu chí động (`traits_to_evaluate`), Agent 2B lập tức ra lệnh "deep-dive". Agent 2A sẽ tự động chế biến câu hỏi đào sâu dựa trên bối cảnh user vừa nói để chấm điểm tiêu chí đó.
+- **Thu thập Kỳ vọng Thị trường:** Agent 2A khéo léo lồng ghép hỏi về Nơi muốn sống (preferred_locations) và Mức lương kỳ vọng (expected_salary_min) để Agent 2B trích xuất.
 - **Hard Turn Limit (Giới hạn lượt):** Tối đa 3-5 lượt trao đổi cho một chủ đề. Khi đạt giới hạn hoặc khi `confidence_score` của nhóm đó đạt trên `0.8`, Agent 2A phải thực hiện **Forced Transition** (chuyển sang chủ đề tiếp theo bằng câu nối khéo léo).
 - **Chỉ số dừng (Stopping Criteria):** Khi trung bình cộng `confidence_scores` của các tiêu chí cốt lõi đạt trên `0.8` (hoặc sau tối đa 15 lượt chat toàn session), Agent 2B sẽ trả về `is_ready = true` để kích hoạt Roadmap.
 
@@ -111,8 +120,8 @@ python-dotenv>=1.0.0
 
 #### 4. `prompts.py`
 Tách biệt toàn bộ System Prompts giúp dễ chỉnh sửa, tránh bias:
-- `COUNSELOR_SYSTEM_PROMPT`: Định nghĩa tính cách, ngôn từ thấu cảm và quy tắc bẻ lái hội thoại.
-- `EVALUATOR_SYSTEM_PROMPT`: Định nghĩa hướng dẫn chấm điểm, trả về định dạng JSON thuần chứa điểm số và cờ `is_ready`.
+- `COUNSELOR_SYSTEM_PROMPT`: Định nghĩa tính cách, ngôn từ thấu cảm, quy tắc bẻ lái hội thoại và nhiệm vụ lồng ghép câu hỏi về Khu vực/Mức lương kỳ vọng.
+- `EVALUATOR_SYSTEM_PROMPT`: Định nghĩa hướng dẫn chấm điểm động (dựa vào `evaluation_framework` truyền vào), trích xuất `market_expectations` và trả về định dạng JSON thuần chứa điểm số và cờ `is_ready`.
 
 #### 5. `counselor_agent.py`
 Gọi API OpenAI để sinh ra câu trả lời dựa trên cuộc hội thoại hiện tại. Áp dụng phong cách trò chuyện phù hợp trực tiếp với học sinh cấp 3 (thân mật, thấu cảm, cởi mở).
