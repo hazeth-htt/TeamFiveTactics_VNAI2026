@@ -1,0 +1,123 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model CareerTrack {
+  id                  Int                 @id @default(autoincrement())
+  career_track        String              @db.VarChar(100)
+  track_type          String              @db.VarChar(50) // Free-form string classified by AI (e.g. IT, Business, Art, Vocational, General...)
+  description         String?
+  avg_salary_min      Int?
+  avg_salary_max      Int?
+  education_route     String?
+  typical_employers   String[]
+  region_demand       Json?
+  vector_id           String?             @db.VarChar(100)
+  created_at          DateTime            @default(now()) @db.Timestamp()
+
+  embedding           Json?
+  local_demand_signals Json?
+  timeline_trends     Json?
+
+  role_progressions   RoleProgression[]
+  skill_trees         SkillTree[]
+
+  @@map("career_tracks")
+}
+
+model RoleProgression {
+  id              Int         @id @default(autoincrement())
+  career_track_id Int
+  level           String      @db.VarChar(20) // "Entry" | "Mid" | "Advanced"
+  title           String      @db.VarChar(150)
+  description     String?
+  sort_order      Int         @default(0)
+
+  career_track    CareerTrack @relation(fields: [career_track_id], references: [id], onDelete: Cascade)
+
+  @@map("role_progressions")
+}
+
+model SkillTree {
+  id              Int         @id @default(autoincrement())
+  career_track_id Int
+  category        String      @db.VarChar(50) // "fundamentals" | "core_technologies" | "advanced_skills"
+  skill_name      String      @db.VarChar(100)
+
+  career_track    CareerTrack @relation(fields: [career_track_id], references: [id], onDelete: Cascade)
+
+  @@map("skill_trees")
+}
+
+model User {
+  id            Int       @id @default(autoincrement())
+  username      String?   @unique @db.VarChar(100)
+  email         String    @unique @db.VarChar(255)
+  password_hash String    @db.VarChar(255)
+  anonymous_id  String?   @unique @db.Uuid
+  created_at    DateTime  @default(now()) @db.Timestamp()
+  sessions      Session[]
+
+  @@map("users")
+}
+
+model Session {
+  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  user_id     Int?
+  started_at  DateTime  @default(now()) @db.Timestamp()
+  ended_at    DateTime? @db.Timestamp()
+  is_complete Boolean   @default(false)
+
+  user                  User?                  @relation(fields: [user_id], references: [id], onDelete: SetNull)
+  conversation_messages ConversationMessage[]
+  user_profile          UserProfile?
+  roadmap               Roadmap?
+
+  @@map("sessions")
+}
+
+model ConversationMessage {
+  id         Int      @id @default(autoincrement())
+  session_id String   @db.Uuid
+  role       String   @db.VarChar(10) // "user" | "assistant"
+  content    String
+  created_at DateTime @default(now()) @db.Timestamp()
+
+  session Session @relation(fields: [session_id], references: [id], onDelete: Cascade)
+
+  @@map("conversation_messages")
+}
+
+model UserProfile {
+  id               Int      @id @default(autoincrement())
+  session_id       String   @unique @db.Uuid
+  context_inferred String?  @db.VarChar(20) // "highschool" | "vocational" | "college"
+  trait_scores     Json?
+  confidence_scores Json?
+  is_ready         Boolean  @default(false)
+  updated_at       DateTime @default(now()) @db.Timestamp()
+
+  session Session @relation(fields: [session_id], references: [id], onDelete: Cascade)
+
+  @@map("user_profiles")
+}
+
+model Roadmap {
+  id                   Int      @id @default(autoincrement())
+  session_id           String   @unique @db.Uuid
+  user_profile_summary String?
+  paths                Json
+  disclaimer           String
+  generated_at         DateTime @default(now()) @db.Timestamp()
+
+  session Session @relation(fields: [session_id], references: [id], onDelete: Cascade)
+
+  @@map("roadmaps")
+}

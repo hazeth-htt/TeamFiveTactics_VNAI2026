@@ -1,0 +1,164 @@
+1. Bảng career_tracks (Danh mục ngành nghề)
+Ý nghĩa: Lưu trữ thông tin tổng quan, định biên, nhu cầu và xu hướng của từng ngành nghề trong xã hội.
+
+Chi tiết các trường dữ liệu:
+
+id (SERIAL, Khóa chính): Mã định danh duy nhất của ngành nghề.
+
+career_track (VARCHAR(100), Not Null): Tên ngành nghề cụ thể (Ví dụ: "Data Science", "Kỹ thuật Ô tô", "Marketing").
+
+track_type (VARCHAR(20), Not Null): Phân loại định hướng học tập. Ràng buộc gồm:
+
+'academic': Định hướng hàn lâm, nghiên cứu, yêu cầu bằng Đại học trở lên.
+
+'vocational': Định hướng thực hành, học nghề, cao đẳng nghề, lao động kỹ thuật.
+
+description (TEXT): Mô tả chi tiết về đặc thù, công việc của ngành nghề.
+
+avg_salary_min (INTEGER): Mức lương trung bình tối thiểu (Đơn vị: VND/tháng).
+
+avg_salary_max (INTEGER): Mức lương trung bình tối đa (Đơn vị: VND/tháng).
+
+education_route (TEXT): Lộ trình đào tạo phổ biến ngoài thực tế (Ví dụ: "Đại học Bách Khoa 4 năm", "Cao đẳng nghề 2 năm").
+
+typical_employers (TEXT[]): Mảng danh sách các doanh nghiệp lớn, nhà tuyển dụng phổ biến của ngành (Ví dụ: ["FPT", "VNG", "Viettel"]).
+
+region_demand (JSONB): Mức độ nhu cầu tuyển dụng phân theo tỉnh/thành phố hoặc khu vực địa lý. (Cấu trúc mẫu: {"HN": "high", "HCM": "high", "DN": "medium"}).
+
+vector_id (VARCHAR(100)): ID định danh của ngành này trong Vector Database (Pinecone), dùng cho tìm kiếm ngữ nghĩa sâu (Semantic Search).
+
+local_demand_signals (JSONB): Các tín hiệu tuyển dụng thực tế, xu hướng biến động và các kỹ năng đang thiếu hụt trầm trọng phân theo địa phương. (Cấu trúc mẫu: {"HCM": {"hot_skills": ["NestJS", "React"], "growth_rate": "15%"}, "HN": {"shortage": ["DevOps"]}}).
+
+timeline_trends (JSONB): Biến động tăng trưởng hoặc suy giảm nhu cầu nhân lực của ngành theo các mốc thời gian (Tháng/Quý/Năm). (Cấu trúc mẫu: {"2025": {"q1": "stable", "q2": "rising"}, "2026": {"status": "booming"}}).
+
+created_at (TIMESTAMP): Thời gian khởi tạo bản ghi ngành nghề.
+
+2. Bảng role_progressions (Lộ trình thăng tiến sự nghiệp)
+Ý nghĩa: Định nghĩa các nấc thang sự nghiệp, các vị trí công việc từ thấp lên cao của một ngành nghề cụ thể để Agent 3 dựa vào vẽ lộ trình tương lai cho học sinh.
+
+Chi tiết các trường dữ liệu:
+
+id (SERIAL, Khóa chính): Mã định danh vị trí.
+
+career_track_id (INTEGER, Khóa ngoại): Liên kết trực tiếp tới career_tracks(id). Xóa ngành thì xóa lộ trình thăng tiến tương ứng (ON DELETE CASCADE).
+
+level (VARCHAR(20), Not Null): Cấp độ vị trí công việc. Ràng buộc gồm:
+
+'Entry': Thực tập sinh, người mới vào nghề (Junior/Intern).
+
+'Mid': Người đã có kinh nghiệm độc lập xử lý công việc (Middle).
+
+'Advanced': Cấp quản lý, chuyên gia hoặc tối cao (Senior/Lead/Manager).
+
+title (VARCHAR(150), Not Null): Tiêu đề công việc thực tế (Ví dụ: "Data Analyst Intern", "Senior Data Scientist").
+
+description (TEXT): Mô tả trách nhiệm, quyền hạn hoặc vai trò của cấp bậc này.
+
+sort_order (INTEGER, Default 0): Thứ tự sắp xếp các bước thăng tiến từ thấp đến cao (Ví dụ: 0 -> 1 -> 2) để hiển thị lên giao diện theo đúng lộ trình.
+
+3. Bảng skill_trees (Cây kỹ năng chuyên ngành)
+Ý nghĩa: Kho lưu trữ toàn bộ các kỹ năng (cứng và mềm) cần phải học nếu muốn theo đuổi một ngành nghề cụ thể.
+
+Chi tiết các trường dữ liệu:
+
+id (SERIAL, Khóa chính): Mã định danh kỹ năng.
+
+career_track_id (INTEGER, Khóa ngoại): Liên kết tới career_tracks(id). Xóa ngành thì cây kỹ năng tự động xóa theo (ON DELETE CASCADE).
+
+category (VARCHAR(50), Not Null): Phân nhóm cấp độ kỹ năng. Ràng buộc gồm:
+
+'fundamentals': Kỹ năng nền tảng, tư duy cơ bản, kiến thức đại cương bắt buộc phải có.
+
+'core_technologies': Công nghệ, công cụ hoặc nghiệp vụ cốt lõi bắt buộc phải thành thạo để làm việc.
+
+'advanced_skills': Kỹ năng nâng cao, chuyên sâu giúp tối ưu công việc hoặc thăng tiến lên cấp quản lý.
+
+skill_name (VARCHAR(100), Not Null): Tên kỹ năng cụ thể (Ví dụ: "Python", "SQL", "Giao tiếp thuyết trình", "PLC Siemens").
+
+NHÓM B: DỮ LIỆU NGƯỜI DÙNG & TIẾN TRÌNH LUỒNG CHAT AI
+Nhóm bảng này lưu vết toàn bộ hoạt động tương tác, phân tích tính cách và kết quả đầu ra cá nhân hóa cho từng học sinh.
+
+4. Bảng users (Quản lý tài khoản)
+Ý nghĩa: Quản lý thông tin định danh của người dùng hệ thống, hỗ trợ cả tài khoản đăng ký chính thức và khách vãng lai trải nghiệm nhanh.
+
+Chi tiết các trường dữ liệu:
+
+id (SERIAL, Khóa chính): Mã định danh người dùng.
+
+username (VARCHAR(100), Unique): Tên đăng nhập (dành cho học sinh đã đăng ký qua Custom JWT Auth).
+
+email (VARCHAR(255), Unique, Not Null): Email tài khoản.
+
+password_hash (VARCHAR(255), Not Null): Chuỗi mật khẩu đã được mã hóa an toàn ở Runtime.
+
+anonymous_id (UUID, Unique): Mã định danh UUID sinh tự động dành cho đối tượng khách vãng lai sử dụng ngay không cần đăng ký.
+
+created_at (TIMESTAMP): Thời điểm tạo tài khoản.
+
+5. Bảng sessions (Phiên trò chuyện/Tư vấn)
+Ý nghĩa: Đại diện cho một phiên làm việc, một chuỗi hội thoại tư vấn hướng nghiệp từ lúc bắt đầu chat đến khi xuất ra Roadmap thành công.
+
+Chi tiết các trường dữ liệu:
+
+id (UUID, Khóa chính): Mã phiên ngẫu nhiên dạng UUID sinh tự động (gen_random_uuid()).
+
+user_id (INTEGER, Khóa ngoại): Liên kết tới users(id). Nếu tài khoản bị xóa, giữ lại session nhưng set trường này về NULL (ON DELETE SET NULL). Khách vãng lai cũng sẽ để trống trường này.
+
+started_at (TIMESTAMP): Thời điểm học sinh bắt đầu mở phiên chat tư vấn.
+
+ended_at (TIMESTAMP): Thời điểm kết thúc hoặc đóng phiên chat.
+
+is_complete (BOOLEAN, Default False): Cờ đánh dấu trạng thái. Bật sang true khi Agent 3 đã tạo và lưu xong lộ trình (Roadmap) hướng nghiệp hoàn chỉnh cho học sinh trong phiên này.
+
+6. Bảng conversation_messages (Sao lưu lịch sử hội thoại)
+Ý nghĩa: Lưu trữ toàn bộ nội dung tin nhắn qua lại giữa học sinh và AI để làm dữ liệu ngữ cảnh (Context) cho Agent hiểu câu chuyện. Lịch sử chính nằm ở Redis (Realtime), bảng này đóng vai trò backup lâu dài.
+
+Chi tiết các trường dữ liệu:
+
+id (SERIAL, Khóa chính): Mã tin nhắn.
+
+session_id (UUID, Khóa ngoại): Thuộc về phiên trò chuyện nào (REFERENCES sessions(id) ON DELETE CASCADE).
+
+role (VARCHAR(10), Not Null): Vai trò người gửi tin nhắn. Ràng buộc gồm:
+
+'user': Tin nhắn do học sinh nhập vào.
+
+'assistant': Phản hồi được sinh ra từ Agent AI.
+
+content (TEXT, Not Null): Nội dung chi tiết của tin nhắn.
+
+created_at (TIMESTAMP): Thời điểm tin nhắn được ghi nhận.
+
+7. Bảng user_profiles (Hồ sơ năng lực học sinh - Đầu ra của Agent 2 / Evaluator)
+Ý nghĩa: Lưu kết quả phân tích thời gian thực từ Agent 2 (Evaluator). Agent 2 lắng nghe cuộc hội thoại, liên tục cập nhật bảng này để phác họa tính cách, năng lực của học sinh. Trường xác định cấp học (context_inferred) đã được loại bỏ hoàn toàn do đối tượng mục tiêu mặc định là Học sinh.
+
+Chi tiết các trường dữ liệu:
+
+id (SERIAL, Khóa chính): Mã định danh hồ sơ phân tích.
+
+session_id (UUID, Khóa ngoại, Unique): Mỗi phiên tư vấn chỉ có duy nhất một hồ sơ năng lực tương ứng.
+
+trait_scores (JSONB): Điểm số đánh giá các thiên hướng, tính cách, sở thích môn học của học sinh (Ví dụ: tư duy logic, sự sáng tạo, khả năng làm việc nhóm, môn học yêu thích). (Cấu trúc mẫu: {"logical_thinking": 8, "creativity": 6, "favorite_subjects": ["Toán", "Vật lý"]}).
+
+confidence_scores (JSONB): Độ tự tin/chính xác của AI đối với từng điểm số tính cách dựa trên lượng thông tin học sinh cung cấp trong cuộc chat. (Cấu trúc mẫu: {"logical_thinking": 0.90, "creativity": 0.65}).
+
+is_ready (BOOLEAN, Default False): Cờ kích hoạt luồng. Khi Agent 2 thấy đã hỏi đủ thông tin cần thiết và hiểu rõ học sinh, nó sẽ cập nhật trường này thành true. Đây là tín hiệu hệ thống dùng để tự động gọi Agent 3 (Generator) vào cuộc.
+
+updated_at (TIMESTAMP): Thời điểm hồ sơ được cập nhật gần nhất trong runtime.
+
+8. Bảng roadmaps (Đa lộ trình hướng nghiệp cá nhân hóa - Đầu ra của Agent 3 / Generator)
+Ý nghĩa: Lưu trữ kết quả tư vấn tối cao từ Agent 3 (Generator). Bảng này chứa các phương án lộ trình chi tiết nhất được thiết kế riêng cho học sinh dựa trên hồ sơ năng lực của họ.
+
+Chi tiết các trường dữ liệu:
+
+id (SERIAL, Khóa chính): Mã định danh lộ trình.
+
+session_id (UUID, Khóa ngoại, Unique): Liên kết 1-1 với phiên trò chuyện tương ứng.
+
+user_profile_summary (TEXT): Đoạn văn bản ngắn bằng ngôn ngữ tự nhiên tóm tắt lại toàn bộ thế mạnh, điểm yếu và xu hướng tính cách của học sinh để hiển thị ở phần đầu trang kết quả.
+
+paths (JSONB, Not Null): Mảng chứa các phương án lộ trình nghề nghiệp (Ví dụ: Lộ trình 1: Thi đại học khối A01 ngành CNTT, Lộ trình 2: Học cao đẳng nghề lập trình). Mỗi lộ trình bao gồm các bước đi cụ thể, danh sách môn học cần tập trung, chứng chỉ cần đạt, và các trường đại học/cao đẳng gợi ý tại Việt Nam.
+
+disclaimer (TEXT, Not Null): Điều khoản miễn trừ trách nhiệm pháp lý. Đoạn text bắt buộc hiển thị trên giao diện nhắc nhở học sinh rằng đây là kết quả tham khảo từ trí tuệ nhân tạo, quyết định cuối cùng thuộc về bản thân.
+
+generated_at (TIMESTAMP): Thời điểm lộ trình được Agent 3 tạo ra thành công.
