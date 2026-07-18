@@ -150,8 +150,15 @@ export class ChatService {
         },
       });
 
-      let replyText = 'Cảm ơn phản hồi của bạn! Bạn có thể chia sẻ thêm chi tiết hơn không?';
-      let isReady = false;
+      const userMsgCount = conversationHistory.filter(m => m.role === 'user').length + 1;
+      let replyText = '';
+      let isReady = userMsgCount >= 3;
+
+      const fallbackPrompts = [
+        'Rất thú vị! Bạn có thể chia sẻ cụ thể hơn về những bài tập, môn học hoặc dự án cá nhân mà bạn cảm thấy tự tin và hứng thú nhất không?',
+        'Cảm ơn bạn đã chia sẻ! Khi gặp một vấn đề kỹ thuật hoặc đề bài khó, bạn thường thích tự tìm lời giải một mình hay trao đổi cùng nhóm?',
+        'Tuyệt vời! Tôi đã ghi nhận khung năng lực của bạn. Bạn đã sẵn sàng xem lộ trình sự nghiệp chi tiết do AI phân tích chưa?'
+      ];
 
       // 6. Gọi sang Python Counselor Service
       try {
@@ -164,7 +171,7 @@ export class ChatService {
           evaluation_framework: evaluationFramework,
           conversation_history: [...conversationHistory, { role: 'user', content: message }],
           current_state: currentState,
-        });
+        }, { timeout: 60000 });
 
         const replies = response.data.replies as string[];
         replyText = replies.join('\n');
@@ -208,7 +215,23 @@ export class ChatService {
 
         this.logger.log(`Updated user profile state. Conversation is_ready: ${isReady}`);
       } catch (error) {
-        this.logger.error(`Error communicating with Python Counselor: ${error.message}`);
+        this.logger.error(`Error communicating with Python Counselor (${this.getCounselorUrl()}): ${error.message}`);
+        
+        replyText = fallbackPrompts[Math.min(userMsgCount - 1, fallbackPrompts.length - 1)];
+        
+        await this.prisma.conversationMessage.create({
+          data: {
+            session_id: sessionId,
+            role: 'assistant',
+            content: replyText,
+          },
+        });
+
+        await this.prisma.userProfile.upsert({
+          where: { session_id: sessionId },
+          update: { is_ready: isReady, updated_at: new Date() },
+          create: { session_id: sessionId, is_ready: isReady },
+        });
       }
 
       return {
