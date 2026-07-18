@@ -1,31 +1,126 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger, HttpException, HttpStatus } from '@nestjs/common';
+import { PrismaClient } from '@prisma/client';
+import { PrismaPg } from '@prisma/adapter-pg';
+import { Pool } from 'pg';
+import axios from 'axios';
 
 @Injectable()
 export class RoadmapService {
-  async generateRoadmap(userProfile: any) {
-    return {
-      user_profile_summary: 'Mock user profile summary based on input traits',
-      paths: [
-        {
-          path_id: 1,
-          track_type: 'vocational',
-          career_track: 'Mock Vocational Career Track',
-          match_score: 90,
-          why_it_fits: 'Based on your strong practical interest scores',
-          role_progression: ['Junior technician', 'Lead specialist'],
-          skill_tree: {},
+  private readonly logger = new Logger(RoadmapService.name);
+  private readonly prisma: PrismaClient;
+  private readonly roadmapUrl = 'http://localhost:8003/generate-roadmap';
+
+  constructor() {
+    const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+    const adapter = new PrismaPg(pool);
+    this.prisma = new PrismaClient({ adapter });
+  }
+
+  async generateRoadmap(input: any) {
+    // Trích xuất sessionId từ input linh hoạt
+    let sessionId = '';
+    if (typeof input === 'string') {
+      sessionId = input;
+    } else if (input && typeof input === 'object') {
+      sessionId = input.session_id || input.sessionId || (input.user_profile && typeof input.user_profile === 'object' ? input.user_profile.session_id : '') || (typeof input.user_profile === 'string' ? input.user_profile : '');
+    }
+
+    if (!sessionId) {
+      this.logger.error('Session ID is missing in roadmap request.');
+      throw new HttpException('Session ID là bắt buộc.', HttpStatus.BAD_REQUEST);
+    }
+
+    this.logger.log(`Generating roadmap for session: ${sessionId}`);
+
+    // 1. Lấy UserProfile từ DB
+    const userProfile = await this.prisma.userProfile.findUnique({
+      where: { session_id: sessionId },
+    });
+
+    if (!userProfile) {
+      this.logger.error(`No user profile found for session: ${sessionId}`);
+      throw new HttpException(
+        'Không tìm thấy hồ sơ năng lực của học sinh cho phiên này.',
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    // 2. Lấy lịch sử hội thoại từ DB
+    const messages = await this.prisma.conversationMessage.findMany({
+      where: { session_id: sessionId },
+      orderBy: { created_at: 'asc' },
+    });
+
+    const conversationHistory = messages.map((msg) => ({
+      role: msg.role,
+      content: msg.content,
+    }));
+
+    // 3. Chuẩn bị payload gửi cho Agent 3
+    const preferredLocations = (userProfile as any).preferred_locations || [];
+    const expectedSalaryMin = (userProfile as any).expected_salary_min || 0;
+    const willingToRelocate = (userProfile as any).willing_to_relocate || false;
+
+    const payload = {
+      user_profile: {
+        core_scores: userProfile.trait_scores,
+        market_expectations: {
+          preferred_locations: preferredLocations,
+          expected_salary_min: expectedSalaryMin,
+          willing_to_relocate: willingToRelocate,
         },
-        {
-          path_id: 2,
-          track_type: 'it',
-          career_track: 'Mock IT Career Track',
-          match_score: 80,
-          why_it_fits: 'Matches IT and technical scores',
-          role_progression: ['Junior developer', 'Tech Lead'],
-          skill_tree: {},
-        },
-      ],
-      disclaimer: 'This is a mock career roadmap disclaimer.',
+      },
+      conversation_history: conversationHistory,
     };
+
+    // 4. Gọi Python Roadmap Microservice
+    try {
+      this.logger.log(`Calling Python Roadmap API at ${this.roadmapUrl}...`);
+      const response = await axios.post(this.roadmapUrl, payload);
+
+      const roadmapData = response.data;
+
+      // 5. Lưu kết quả Roadmap vào PostgreSQL
+      await this.prisma.roadmap.upsert({
+        where: { session_id: sessionId },
+        update: {
+          user_profile_summary: roadmapData.user_profile_summary,
+          paths: roadmapData.paths,
+          disclaimer: roadmapData.disclaimer,
+          generated_at: new Date(),
+        },
+        create: {
+          session_id: sessionId,
+          user_profile_summary: roadmapData.user_profile_summary,
+          paths: roadmapData.paths,
+          disclaimer: roadmapData.disclaimer,
+        },
+      });
+
+      this.logger.log(`Successfully generated and saved roadmap for session: ${sessionId}`);
+      return roadmapData;
+    } catch (error) {
+      this.logger.error(`Failed to generate roadmap from Python service: ${error.message}`);
+      
+      // Fallback mock nếu Python service bị lỗi/chưa bật
+      this.logger.warn('Returning mock fallback roadmap due to API failure.');
+      return {
+        user_profile_summary: 'Học sinh có thiên hướng tư duy phân tích và kỹ thuật cao (Fallback).',
+        paths: [
+          {
+            path_id: 1,
+            track_type: 'academic',
+            career_track: 'Kỹ sư giải pháp công nghệ (Fallback)',
+            match_score: 85,
+            why_it_fits: 'Phù hợp với thế mạnh tư duy độc lập và phân tích điện tử.',
+            role_progression: [
+              { level: 'Entry', title: 'Junior Engineer', description: 'Hỗ trợ kỹ thuật' }
+            ],
+            skill_tree: { fundamentals: ['Lập trình'], core_technologies: ['API'], advanced_skills: ['Cloud'] },
+          },
+        ],
+        disclaimer: 'Đây là lộ trình dự phòng (Fallback) khi dịch vụ gặp gián đoạn.',
+      };
+    }
   }
 }

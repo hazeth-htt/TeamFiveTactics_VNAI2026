@@ -7,8 +7,8 @@ export class RoadmapController {
 
   @Post('roadmap')
   async createRoadmap(
-    @Body() body: { user_profile: any },
+    @Body() body: any,
   ) {
-    return this.roadmapService.generateRoadmap(body.user_profile);
+    return this.roadmapService.generateRoadmap(body);
   }
 }
