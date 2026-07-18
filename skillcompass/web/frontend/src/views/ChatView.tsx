@@ -94,8 +94,8 @@ function ChatView({ onNavigate }: { onNavigate: (v: View) => void }) {
     <div style={{ display: 'flex', height: '100vh', fontFamily: '"Google Sans Flex", sans-serif', background: '#FAFAFA' }}>
 
       {/* SIDEBAR */}
-      <div style={{ width: '300px', background: '#FFFFFF', borderRight: '1px solid rgba(6,4,14,0.06)', padding: '32px 24px', display: 'flex', flexDirection: 'column' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '40px' }}>
+      <div style={{ width: '300px', background: '#FFFFFF', borderRight: '1px solid rgba(6,4,14,0.06)', padding: '32px 24px', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '32px' }}>
           <div style={{ width: '40px', height: '40px', borderRadius: '20px', background: '#CBB0EB', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <div style={{ width: '16px', height: '16px', borderRadius: '4px', background: '#1F1738' }} />
           </div>
@@ -104,7 +104,65 @@ function ChatView({ onNavigate }: { onNavigate: (v: View) => void }) {
             <p style={{ fontWeight: 700, fontSize: '12px', lineHeight: '16px', color: 'rgba(6,4,14,0.5)', margin: 0, textTransform: 'uppercase', letterSpacing: '1.2px' }}>ACTIVE SESSION</p>
           </div>
         </div>
-        <div style={{ marginTop: 'auto' }}>
+
+        {/* Tiến trình hội thoại */}
+        {(() => {
+          const userTurns = msgs.filter(m => m.role === 'user').length;
+          const totalTurns = 10;
+          const pct = Math.min(Math.round((userTurns / totalTurns) * 100), 100);
+          return (
+            <div style={{ marginBottom: '24px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                <span style={{ fontSize: '13px', fontWeight: 500, color: '#5F6368' }}>Tiến trình thu thập</span>
+                <span style={{ fontSize: '13px', fontWeight: 700, color: '#0260FF' }}>{pct}%</span>
+              </div>
+              <div style={{ height: '6px', borderRadius: '3px', background: '#F0F4FF', overflow: 'hidden' }}>
+                <div style={{ height: '6px', borderRadius: '3px', background: 'linear-gradient(90deg, #0260FF, #40A2FF)', width: `${pct}%`, transition: 'width 0.5s ease' }} />
+              </div>
+              <p style={{ fontSize: '12px', color: 'rgba(6,4,14,0.4)', marginTop: '6px', margin: '6px 0 0 0' }}>
+                {userTurns}/{totalTurns} lượt trả lời
+              </p>
+            </div>
+          );
+        })()}
+
+        {/* Lịch sử hội thoại */}
+        <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          <p style={{ fontSize: '12px', fontWeight: 700, color: 'rgba(6,4,14,0.35)', textTransform: 'uppercase', letterSpacing: '1px', margin: '0 0 8px 0' }}>
+            Lịch sử trò chuyện
+          </p>
+          {msgs.filter(m => m.role === 'user').length === 0 ? (
+            <div style={{ textAlign: 'center', padding: '24px 0' }}>
+              <p style={{ fontSize: '13px', color: 'rgba(6,4,14,0.35)', lineHeight: '20px' }}>
+                Chưa có tin nhắn nào.<br />Hãy bắt đầu trò chuyện!
+              </p>
+            </div>
+          ) : (
+            msgs.map((m, i) => {
+              if (m.role !== 'user') return null;
+              const turnNo = msgs.slice(0, i + 1).filter(x => x.role === 'user').length;
+              const preview = m.text.length > 60 ? m.text.slice(0, 60) + '...' : m.text;
+              return (
+                <div key={i} style={{
+                  padding: '10px 14px',
+                  borderRadius: '12px',
+                  background: '#F8F9FC',
+                  border: '1px solid rgba(6,4,14,0.06)',
+                  cursor: 'default',
+                }}>
+                  <div style={{ fontSize: '11px', fontWeight: 700, color: '#0260FF', marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.8px' }}>
+                    Lượt {turnNo}
+                  </div>
+                  <div style={{ fontSize: '13px', color: '#06040E', lineHeight: '18px' }}>
+                    {preview}
+                  </div>
+                </div>
+              );
+            })
+          )}
+        </div>
+
+        <div style={{ marginTop: '16px' }}>
           <button onClick={() => onNavigate('home')} className="gemini-pill" style={{
             color: '#D93025', fontWeight: 500, border: '1px solid rgba(217,48,37,0.2)', display: 'flex', justifyContent: 'center', margin: 0, width: '100%'
           }}>Thoát phiên trò chuyện</button>
