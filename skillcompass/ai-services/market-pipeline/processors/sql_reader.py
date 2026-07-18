@@ -63,15 +63,27 @@ WHERE id = %s;
 
 def _map_track_type_to_field_id(track_type: str) -> str:
     """
-    Chuyển đổi track_type cũ (academic/vocational) sang field_id mới của hệ thống.
-    Vì SQL dump cũ chỉ có 2 loại, ta cần LLM để phân loại chi tiết hơn.
-    Mặc định: academic → f_it (sẽ được LLM override sau), vocational → f_vocational.
+    Chuyển đổi track_type sang field_id chuẩn của hệ thống:
+    f_it, f_business, f_art, f_vocational, f_medical
     """
-    mapping = {
-        "academic": "f_it",         # Tạm thời, LLM sẽ giúp phân loại chính xác
-        "vocational": "f_vocational",
-    }
-    return mapping.get(track_type.lower(), "f_it")
+    if not track_type:
+        return "f_it"
+    t = track_type.lower().strip()
+    if t == "business":
+        return "f_business"
+    elif t == "it":
+        return "f_it"
+    elif t == "vocational":
+        return "f_vocational"
+    elif t == "medical":
+        return "f_medical"
+    elif t == "art":
+        return "f_art"
+    elif t == "academic":
+        return "f_it"
+    
+    # Fallback cho general hoặc các loại khác để thỏa mãn validator
+    return "f_vocational"
 
 
 def fetch_unembedded_careers(conn, batch_size: int = 50) -> list[CareerTrackRow]:
