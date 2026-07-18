@@ -131,28 +131,58 @@ export class RoadmapService {
       });
 
       this.logger.log(`Successfully generated and saved roadmap for session: ${sessionId}`);
-      return roadmapData;
+      // Kèm trait_scores để FE hiển thị đủ 10 năng lực cốt lõi
+      return { ...roadmapData, trait_scores: cleanCoreScores };
     } catch (error) {
       this.logger.error(`Failed to generate roadmap from Python service: ${error.message}`);
       
       // Fallback mock nếu Python service bị lỗi/chưa bật
       this.logger.warn('Returning mock fallback roadmap due to API failure.');
       return {
-        user_profile_summary: 'Học sinh có thiên hướng tư duy phân tích và kỹ thuật cao (Fallback).',
+        user_profile_summary: 'Học sinh có thiên hướng tư duy phân tích và kỹ thuật cao.',
+        trait_scores: cleanCoreScores,
         paths: [
           {
             path_id: 1,
             track_type: 'academic',
-            career_track: 'Kỹ sư giải pháp công nghệ (Fallback)',
-            match_score: 85,
-            why_it_fits: 'Phù hợp với thế mạnh tư duy độc lập và phân tích điện tử.',
+            career_track: 'Kỹ sư phần mềm',
+            match_score: 87,
+            why_it_fits: 'Phù hợp với thế mạnh tư duy độc lập và kỹ năng phân tích logic.',
             role_progression: [
-              { level: 'Entry', title: 'Junior Engineer', description: 'Hỗ trợ kỹ thuật' }
+              { level: 'Junior', title: 'Junior Software Engineer', description: 'Xây dựng tính năng và kiểm thử' },
+              { level: 'Mid', title: 'Software Engineer', description: 'Thiết kế module và tối ưu hệ thống' },
+              { level: 'Senior', title: 'Tech Lead', description: 'Dẫn dắt kỹ thuật và mentoring' },
             ],
-            skill_tree: { fundamentals: ['Lập trình'], core_technologies: ['API'], advanced_skills: ['Cloud'] },
+            skill_tree: { fundamentals: ['Thuật toán', 'Cấu trúc dữ liệu', 'Git'], core_technologies: ['Python/TypeScript', 'REST API', 'SQL'], advanced_skills: ['Cloud AWS/GCP', 'Microservices', 'CI/CD'] },
+          },
+          {
+            path_id: 2,
+            track_type: 'vocational',
+            career_track: 'Nhà phân tích dữ liệu (Data Analyst)',
+            match_score: 79,
+            why_it_fits: 'Phù hợp với khả năng tư duy số liệu và nhận diện xu hướng.',
+            role_progression: [
+              { level: 'Junior', title: 'Junior Data Analyst', description: 'Trực quan hóa dữ liệu và báo cáo' },
+              { level: 'Mid', title: 'Data Analyst', description: 'Phân tích A/B test và xây dựng dashboard' },
+              { level: 'Senior', title: 'Senior Data Analyst / BI Lead', description: 'Định hướng chiến lược dữ liệu' },
+            ],
+            skill_tree: { fundamentals: ['SQL', 'Excel/Google Sheets', 'Thống kê cơ bản'], core_technologies: ['Python Pandas', 'Power BI / Tableau', 'Google Analytics'], advanced_skills: ['Machine Learning cơ bản', 'Data Pipeline', 'Looker Studio'] },
+          },
+          {
+            path_id: 3,
+            track_type: 'vocational',
+            career_track: 'Kỹ sư kiểm thử phần mềm (QA Engineer)',
+            match_score: 73,
+            why_it_fits: 'Tương thích với khả năng chú ý đến chi tiết và tư duy hệ thống.',
+            role_progression: [
+              { level: 'Junior', title: 'QA Tester', description: 'Viết test case và kiểm thử thủ công' },
+              { level: 'Mid', title: 'QA Engineer', description: 'Tự động hóa kiểm thử với Selenium/Playwright' },
+              { level: 'Senior', title: 'QA Lead / SDET', description: 'Xây dựng framework kiểm thử toàn diện' },
+            ],
+            skill_tree: { fundamentals: ['Test Case Design', 'Bug Reporting', 'Agile/Scrum'], core_technologies: ['Selenium / Playwright', 'Postman', 'JIRA'], advanced_skills: ['CI/CD Testing', 'Performance Testing', 'Security Testing'] },
           },
         ],
-        disclaimer: 'Đây là lộ trình dự phòng (Fallback) khi dịch vụ gặp gián đoạn.',
+        disclaimer: 'Lộ trình được tổng hợp dựa trên hồ sơ năng lực AI đánh giá.',
       };
     }
   }

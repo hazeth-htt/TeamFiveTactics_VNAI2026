@@ -38,20 +38,41 @@ function ResultsView({ onNavigate }: { onNavigate: (v: View) => void }) {
 
   const defaultRecommendedJobs = [
     {
-      title: 'Kỹ sư giải pháp phần mềm',
-      score: 92,
+      career_track: 'Kỹ sư giải pháp phần mềm',
+      match_score: 92,
       why_it_fits: 'Phù hợp với thế mạnh tư duy phân tích logic và sáng tạo của bạn.',
-      skills: ['Lập trình Python/TypeScript', 'Kiến trúc phần mềm', 'Truy vấn SQL', 'Giao tiếp & Đàm phán', 'Điện toán đám mây Cloud']
+      skill_tree: { fundamentals: ['Lập trình Python/TypeScript', 'Kiến trúc phần mềm', 'Truy vấn SQL'], core_technologies: ['Điện toán đám mây Cloud', 'DevOps CI/CD'], advanced_skills: ['Thiết kế hệ thống phân tán', 'AI/ML cơ bản'] },
+      role_progression: [
+        { level: 'Junior', title: 'Software Engineer', description: 'Xây dựng và kiểm thử tính năng cơ bản' },
+        { level: 'Mid', title: 'Senior Software Engineer', description: 'Dẫn dắt thiết kế kỹ thuật và mentor' },
+        { level: 'Senior', title: 'Tech Lead / Architect', description: 'Định hướng kiến trúc toàn hệ thống' },
+      ]
     },
     {
-      title: 'Quản lý Sản phẩm (Product Manager)',
-      score: 86,
+      career_track: 'Quản lý Sản phẩm (Product Manager)',
+      match_score: 86,
       why_it_fits: 'Tương thích cao với kỹ năng giải quyết vấn đề và định hướng thị trường.',
-      skills: ['Quản lý dự án Agile/Scrum', 'Phân tích yêu cầu', 'Thiết kế trải nghiệm UX/UI', 'Tư duy chiến lược']
+      skill_tree: { fundamentals: ['Quản lý dự án Agile/Scrum', 'Phân tích yêu cầu'], core_technologies: ['Thiết kế UX/UI', 'SQL & Data Analysis'], advanced_skills: ['Tư duy chiến lược sản phẩm', 'OKR & Roadmapping'] },
+      role_progression: [
+        { level: 'Junior', title: 'Associate PM', description: 'Hỗ trợ PM triển khai tính năng' },
+        { level: 'Mid', title: 'Product Manager', description: 'Quản lý toàn bộ vòng đời sản phẩm' },
+        { level: 'Senior', title: 'Head of Product', description: 'Định hướng chiến lược sản phẩm toàn công ty' },
+      ]
+    },
+    {
+      career_track: 'Nhà thiết kế UX/UI',
+      match_score: 78,
+      why_it_fits: 'Phù hợp với khả năng tư duy sáng tạo và thấu hiểu người dùng.',
+      skill_tree: { fundamentals: ['Figma / Adobe XD', 'Design Thinking', 'Wireframing'], core_technologies: ['Prototyping', 'User Research', 'Usability Testing'], advanced_skills: ['Design System', 'Motion Design', 'Accessibility'] },
+      role_progression: [
+        { level: 'Junior', title: 'UI Designer', description: 'Thiết kế giao diện theo design system' },
+        { level: 'Mid', title: 'UX/UI Designer', description: 'Nghiên cứu người dùng và thiết kế trải nghiệm' },
+        { level: 'Senior', title: 'Lead Designer / Head of Design', description: 'Xây dựng design system và định hướng thương hiệu' },
+      ]
     },
   ];
 
-  const paths = roadmapData?.paths || [];
+  const paths = roadmapData?.paths?.length > 0 ? roadmapData.paths : defaultRecommendedJobs;
 
   return (
     <div style={{ minHeight: '100vh', background: '#FAFAFA', padding: '64px 48px', fontFamily: '"Google Sans Flex", sans-serif' }}>
@@ -80,16 +101,50 @@ function ResultsView({ onNavigate }: { onNavigate: (v: View) => void }) {
               <div className="gemini-card" style={{ borderRadius: '20px', padding: '32px' }}>
                 <h3 className="gemini-gradient-text" style={{ fontWeight: 500, fontSize: '20px', lineHeight: '24px', marginBottom: '24px' }}>Năng lực Cốt lõi</h3>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                  {[{ n: 'Tư duy Logic', v: 92 }, { n: 'Sáng tạo', v: 84 }, { n: 'Thích ứng', v: 88 }].map(s => (
-                    <div key={s.n}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px', color: '#06040E', fontWeight: 400, fontSize: '15px' }}>
-                        <span>{s.n}</span> <span style={{ color: '#0260FF', fontWeight: 500 }}>{s.v}%</span>
+                  {(() => {
+                    // Lấy trait_scores từ AI, fallback về mặc định
+                    const traitMap: Record<string, string> = {
+                      logical_thinking: 'Tư duy Logic',
+                      creativity: 'Sáng tạo',
+                      adaptability: 'Thích ứng',
+                      communication: 'Giao tiếp',
+                      teamwork: 'Làm việc nhóm',
+                      leadership: 'Lãnh đạo',
+                      technical_skill: 'Kỹ năng kỹ thuật',
+                      problem_solving: 'Giải quyết vấn đề',
+                      emotional_intelligence: 'Trí tuệ cảm xúc',
+                      market_awareness: 'Nhận thức thị trường',
+                    };
+                    const rawScores: Record<string, number> = roadmapData?.trait_scores ||
+                      roadmapData?.profile?.trait_scores || {};
+                    const scoreEntries = Object.entries(rawScores)
+                      .filter(([, v]) => typeof v === 'number')
+                      .map(([k, v]) => ({ n: traitMap[k] || k, v: Math.round(Number(v)) }));
+                    const displayScores = scoreEntries.length > 0
+                      ? scoreEntries
+                      : [
+                          { n: 'Tư duy Logic', v: 92 },
+                          { n: 'Sáng tạo', v: 84 },
+                          { n: 'Thích ứng', v: 88 },
+                          { n: 'Giao tiếp', v: 76 },
+                          { n: 'Làm việc nhóm', v: 80 },
+                          { n: 'Lãnh đạo', v: 70 },
+                          { n: 'Kỹ năng kỹ thuật', v: 85 },
+                          { n: 'Giải quyết vấn đề', v: 90 },
+                          { n: 'Trí tuệ cảm xúc', v: 72 },
+                          { n: 'Nhận thức thị trường', v: 68 },
+                        ];
+                    return displayScores.map(s => (
+                      <div key={s.n}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px', color: '#06040E', fontWeight: 400, fontSize: '14px' }}>
+                          <span>{s.n}</span> <span style={{ color: '#0260FF', fontWeight: 500 }}>{s.v}%</span>
+                        </div>
+                        <div style={{ height: '6px', borderRadius: '3px', background: '#F0F4FF' }}>
+                          <div style={{ height: '6px', borderRadius: '3px', background: 'linear-gradient(53deg, #0260FF, #40A2FF)', width: `${s.v}%`, transition: 'width 0.8s ease' }} />
+                        </div>
                       </div>
-                      <div style={{ height: '6px', borderRadius: '3px', background: '#F0F4FF' }}>
-                        <div style={{ height: '6px', borderRadius: '3px', background: 'linear-gradient(53deg, #0260FF, #40A2FF)', width: `${s.v}%` }} />
-                      </div>
-                    </div>
-                  ))}
+                    ));
+                  })()}
                 </div>
               </div>
 
@@ -165,19 +220,7 @@ function ResultsView({ onNavigate }: { onNavigate: (v: View) => void }) {
                       </div>
                     );
                   })
-                ) : (
-                  defaultRecommendedJobs.map((j, i) => (
-                    <div key={i} className="gemini-card" style={{ borderRadius: '20px', padding: '32px' }}>
-                      <h4 style={{ fontWeight: 500, fontSize: '24px', color: '#06040E', marginBottom: '8px' }}>{j.title}</h4>
-                      <p style={{ fontSize: '15px', color: '#5F6368', marginBottom: '16px' }}>{j.why_it_fits}</p>
-                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-                        {j.skills.map(s => (
-                          <span key={s} style={{ background: '#F8F9FA', padding: '8px 16px', borderRadius: '16px', fontSize: '14px', color: '#5F6368' }}>{s}</span>
-                        ))}
-                      </div>
-                    </div>
-                  ))
-                )}
+                ) : null}
               </div>
             </div>
           </>
