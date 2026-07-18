@@ -35,7 +35,7 @@ class TimelineTrends(BaseModel):
 
 class DbData(BaseModel):
     career_track: str
-    field_id: str = Field(..., pattern=r"^(f_)?(it|business|art|vocational|medical)$")
+    field_id: str
     description: str
     avg_salary_min: int = Field(..., gt=0)
     avg_salary_max: int = Field(..., gt=0)

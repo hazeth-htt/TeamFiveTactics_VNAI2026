@@ -64,26 +64,9 @@ WHERE id = %s;
 def _map_track_type_to_field_id(track_type: str) -> str:
     """
     Chuyển đổi track_type sang field_id chuẩn của hệ thống:
-    it, business, art, vocational, medical
+    it, business, art, vocational, medical, general...
     """
-    if not track_type:
-        return "it"
-    t = track_type.lower().strip()
-    if t == "business":
-        return "business"
-    elif t == "it":
-        return "it"
-    elif t == "vocational":
-        return "vocational"
-    elif t == "medical":
-        return "medical"
-    elif t == "art":
-        return "art"
-    elif t == "academic":
-        return "it"
-    
-    # Fallback cho general hoặc các loại khác
-    return "vocational"
+    return track_type.lower().strip() if track_type else "general"
 
 
 def fetch_unembedded_careers(conn, batch_size: int = 50) -> list[CareerTrackRow]:
