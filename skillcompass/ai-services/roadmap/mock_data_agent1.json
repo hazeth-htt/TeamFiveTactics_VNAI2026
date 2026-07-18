@@ -2,6 +2,7 @@
   {
     "career_track": "Backend Developer",
     "field": "IT",
+    "track_type": "academic",
     "location_data": {
       "province": "Hà Nội",
       "salary_range": [15000000, 30000000],
@@ -9,19 +10,28 @@
       "risk_of_unemployment": "Low",
       "market_insight": "Nhu cầu tuyển dụng cao, yêu cầu kinh nghiệm làm việc với hệ thống chịu tải."
     },
-    "required_traits": {
-      "introvert_vs_extrovert": 3,
-      "analytical_vs_creative": 8,
-      "theoretical_vs_practical": 7,
-      "logical_thinking": 9,
-      "problem_solving": 9,
-      "continuous_learning": 8,
-      "team_collaboration": 5
+    "core_competencies": {
+      "analytical_thinking_logic": 9,
+      "complex_problem_solving": 8,
+      "effective_communication": 4,
+      "teamwork_collaboration": 5,
+      "self_directed_learning": 8,
+      "creativity_innovation": 5,
+      "adaptability_resilience": 7,
+      "critical_thinking": 8,
+      "responsibility_autonomy": 8,
+      "ethics_integrity": 7
+    },
+    "domain_competencies": {
+      "tech/python": { "weight_omega": 0.4, "required_level": 7 },
+      "tech/sql": { "weight_omega": 0.3, "required_level": 8 },
+      "tech/api_design": { "weight_omega": 0.3, "required_level": 7 }
     }
   },
   {
     "career_track": "Frontend Developer",
     "field": "IT",
+    "track_type": "academic",
     "location_data": {
       "province": "Hồ Chí Minh",
       "salary_range": [12000000, 25000000],
@@ -29,19 +39,28 @@
       "risk_of_unemployment": "Medium",
       "market_insight": "Cạnh tranh cao ở level Fresher/Junior, yêu cầu kiến thức UI/UX tốt."
     },
-    "required_traits": {
-      "introvert_vs_extrovert": 5,
-      "analytical_vs_creative": 6,
-      "theoretical_vs_practical": 8,
-      "logical_thinking": 7,
-      "problem_solving": 7,
-      "continuous_learning": 8,
-      "team_collaboration": 7
+    "core_competencies": {
+      "analytical_thinking_logic": 7,
+      "complex_problem_solving": 7,
+      "effective_communication": 6,
+      "teamwork_collaboration": 7,
+      "self_directed_learning": 8,
+      "creativity_innovation": 7,
+      "adaptability_resilience": 7,
+      "critical_thinking": 7,
+      "responsibility_autonomy": 7,
+      "ethics_integrity": 7
+    },
+    "domain_competencies": {
+      "tech/javascript": { "weight_omega": 0.5, "required_level": 8 },
+      "tech/react": { "weight_omega": 0.3, "required_level": 7 },
+      "design/ui_ux_basics": { "weight_omega": 0.2, "required_level": 6 }
     }
   },
   {
     "career_track": "Digital Marketing Specialist",
     "field": "Business",
+    "track_type": "academic",
     "location_data": {
       "province": "Đà Nẵng",
       "salary_range": [8000000, 20000000],
@@ -49,18 +68,28 @@
       "risk_of_unemployment": "Low",
       "market_insight": "Cần đa năng, biết tối ưu quảng cáo và làm nội dung."
     },
-    "required_traits": {
-      "introvert_vs_extrovert": 7,
-      "analytical_vs_creative": 6,
-      "theoretical_vs_practical": 8,
-      "social_interaction": 8,
-      "persuasion_negotiation": 7,
-      "number_sensitivity": 6
+    "core_competencies": {
+      "analytical_thinking_logic": 6,
+      "complex_problem_solving": 6,
+      "effective_communication": 8,
+      "teamwork_collaboration": 7,
+      "self_directed_learning": 7,
+      "creativity_innovation": 8,
+      "adaptability_resilience": 7,
+      "critical_thinking": 6,
+      "responsibility_autonomy": 7,
+      "ethics_integrity": 6
+    },
+    "domain_competencies": {
+      "mkt/seo": { "weight_omega": 0.3, "required_level": 7 },
+      "mkt/facebook_ads": { "weight_omega": 0.4, "required_level": 8 },
+      "mkt/google_analytics": { "weight_omega": 0.3, "required_level": 7 }
     }
   },
   {
     "career_track": "Sales B2B Executive",
     "field": "Business",
+    "track_type": "academic",
     "location_data": {
       "province": "Hồ Chí Minh",
       "salary_range": [10000000, 50000000],
@@ -68,18 +97,28 @@
       "risk_of_unemployment": "Low",
       "market_insight": "Luôn khát nhân sự giỏi, thu nhập chủ yếu từ hoa hồng."
     },
-    "required_traits": {
-      "introvert_vs_extrovert": 9,
-      "analytical_vs_creative": 4,
-      "theoretical_vs_practical": 9,
-      "social_interaction": 10,
-      "persuasion_negotiation": 9,
-      "number_sensitivity": 5
+    "core_competencies": {
+      "analytical_thinking_logic": 5,
+      "complex_problem_solving": 7,
+      "effective_communication": 9,
+      "teamwork_collaboration": 8,
+      "self_directed_learning": 6,
+      "creativity_innovation": 6,
+      "adaptability_resilience": 8,
+      "critical_thinking": 6,
+      "responsibility_autonomy": 8,
+      "ethics_integrity": 8
+    },
+    "domain_competencies": {
+      "sales/negotiation": { "weight_omega": 0.4, "required_level": 8 },
+      "sales/crm": { "weight_omega": 0.2, "required_level": 6 },
+      "sales/b2b_communication": { "weight_omega": 0.4, "required_level": 8 }
     }
   },
   {
     "career_track": "UX/UI Designer",
     "field": "Art",
+    "track_type": "academic",
     "location_data": {
       "province": "Hà Nội",
       "salary_range": [12000000, 28000000],
@@ -87,18 +126,28 @@
       "risk_of_unemployment": "Medium",
       "market_insight": "Xu hướng thiết kế sản phẩm số tăng cao, cần hiểu biết về trải nghiệm người dùng."
     },
-    "required_traits": {
-      "introvert_vs_extrovert": 4,
-      "analytical_vs_creative": 2,
-      "theoretical_vs_practical": 8,
-      "creative_expression": 8,
-      "aesthetics": 9,
-      "attention_to_detail": 8
+    "core_competencies": {
+      "analytical_thinking_logic": 6,
+      "complex_problem_solving": 7,
+      "effective_communication": 6,
+      "teamwork_collaboration": 6,
+      "self_directed_learning": 8,
+      "creativity_innovation": 9,
+      "adaptability_resilience": 6,
+      "critical_thinking": 7,
+      "responsibility_autonomy": 7,
+      "ethics_integrity": 7
+    },
+    "domain_competencies": {
+      "design/figma": { "weight_omega": 0.5, "required_level": 8 },
+      "design/user_research": { "weight_omega": 0.3, "required_level": 7 },
+      "design/prototyping": { "weight_omega": 0.2, "required_level": 8 }
     }
   },
   {
     "career_track": "Kỹ Thuật Viên Sửa Chữa Ô Tô",
     "field": "Vocational",
+    "track_type": "vocational",
     "location_data": {
       "province": "Bình Dương",
       "salary_range": [9000000, 20000000],
@@ -106,17 +155,28 @@
       "risk_of_unemployment": "Low",
       "market_insight": "Thị trường ô tô cá nhân bùng nổ, rất thiếu thợ tay nghề cao."
     },
-    "required_traits": {
-      "introvert_vs_extrovert": 5,
-      "analytical_vs_creative": 8,
-      "theoretical_vs_practical": 10,
-      "practical_hands_on": 9,
-      "immediate_result_focus": 8
+    "core_competencies": {
+      "analytical_thinking_logic": 7,
+      "complex_problem_solving": 8,
+      "effective_communication": 4,
+      "teamwork_collaboration": 5,
+      "self_directed_learning": 7,
+      "creativity_innovation": 5,
+      "adaptability_resilience": 8,
+      "critical_thinking": 6,
+      "responsibility_autonomy": 8,
+      "ethics_integrity": 8
+    },
+    "domain_competencies": {
+      "automotive/obd_diagnostics": { "weight_omega": 0.3, "required_level": 7 },
+      "automotive/engine_repair": { "weight_omega": 0.4, "required_level": 8 },
+      "automotive/electrical_systems": { "weight_omega": 0.3, "required_level": 7 }
     }
   },
   {
     "career_track": "Data Analyst",
     "field": "IT",
+    "track_type": "academic",
     "location_data": {
       "province": "Hà Nội",
       "salary_range": [14000000, 35000000],
@@ -124,14 +184,22 @@
       "risk_of_unemployment": "Low",
       "market_insight": "Nhu cầu phân tích dữ liệu kinh doanh rất lớn trong các tập đoàn."
     },
-    "required_traits": {
-      "introvert_vs_extrovert": 4,
-      "analytical_vs_creative": 9,
-      "theoretical_vs_practical": 6,
-      "logical_thinking": 9,
-      "problem_solving": 8,
-      "number_sensitivity": 9,
-      "team_collaboration": 6
+    "core_competencies": {
+      "analytical_thinking_logic": 9,
+      "complex_problem_solving": 8,
+      "effective_communication": 6,
+      "teamwork_collaboration": 6,
+      "self_directed_learning": 8,
+      "creativity_innovation": 5,
+      "adaptability_resilience": 7,
+      "critical_thinking": 8,
+      "responsibility_autonomy": 7,
+      "ethics_integrity": 7
+    },
+    "domain_competencies": {
+      "tech/sql": { "weight_omega": 0.5, "required_level": 8 },
+      "tech/python": { "weight_omega": 0.2, "required_level": 6 },
+      "analytics/powerbi": { "weight_omega": 0.3, "required_level": 7 }
     }
   }
 ]

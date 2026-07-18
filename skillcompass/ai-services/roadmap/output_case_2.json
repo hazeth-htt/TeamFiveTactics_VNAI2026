@@ -1,0 +1,90 @@
+{
+  "user_profile_summary": "Bạn sở hữu một bộ kỹ năng mềm vượt trội: giao tiếp xuất sắc (9/10), khả năng làm việc nhóm và thích ứng linh hoạt (8/10), cùng tinh thần trách nhiệm và đạo đức cao (8/10). Đây là nền tảng vững chắc cho những ngành nghề đòi hỏi sự kết nối con người và quản lý mối quan hệ. Mặc dù tư duy phân tích logic chưa phải thế mạnh chính (5/10), nhưng bạn hoàn toàn có thể phát huy tối đa điểm mạnh giao tiếp và hợp tác để thành công trong các lĩnh vực kinh doanh hoặc công nghệ có tính tương tác cao.",
+  "paths": [
+    {
+      "path_id": 1,
+      "track_type": "academic",
+      "career_track": "Sales B2B Executive",
+      "match_score": 80,
+      "why_it_fits": "Ngành Sales B2B đòi hỏi khả năng giao tiếp thuyết phục (9/10), làm việc nhóm để phối hợp với các bộ phận (8/10), và sự thích ứng linh hoạt trước các tình huống khách hàng (8/10). Bạn cũng có tinh thần trách nhiệm cao (8/10) để theo đuổi mục tiêu doanh số và đạo đức nghề nghiệp (8/10) để xây dựng lòng tin với đối tác. Đây là sự kết hợp lý tưởng cho một nhân viên bán hàng doanh nghiệp thành công.",
+      "market_warning": "",
+      "role_progression": [
+        {
+          "level": "Entry",
+          "title": "Sales Development Representative (SDR)",
+          "description": "Chịu trách nhiệm tìm kiếm khách hàng tiềm năng qua điện thoại, email và mạng xã hội. Thực hiện các cuộc gọi lạnh (cold call) để giới thiệu sản phẩm, đặt lịch hẹn cho đội ngũ bán hàng cấp cao. Yêu cầu kỹ năng giao tiếp tốt và kiên trì."
+        },
+        {
+          "level": "Mid",
+          "title": "Account Executive (AE)",
+          "description": "Quản lý toàn bộ vòng đời bán hàng từ tư vấn, đàm phán đến chốt hợp đồng. Xây dựng mối quan hệ với khách hàng doanh nghiệp, phối hợp với đội ngũ kỹ thuật để đưa ra giải pháp phù hợp. Chịu trách nhiệm đạt chỉ tiêu doanh số hàng tháng."
+        },
+        {
+          "level": "Advanced",
+          "title": "Key Account Manager (KAM)",
+          "description": "Quản lý danh mục khách hàng chiến lược, phát triển kế hoạch kinh doanh dài hạn. Đàm phán hợp đồng lớn, tư vấn giải pháp nâng cao giá trị cho khách hàng. Định hướng chiến lược phát triển thị trường và đào tạo nhân viên mới."
+        }
+      ],
+      "skill_tree": {
+        "fundamentals": [
+          "Kỹ năng giao tiếp và thuyết trình",
+          "Kỹ năng đàm phán và thương lượng",
+          "Kiến thức cơ bản về sản phẩm/ngành"
+        ],
+        "core_technologies": [
+          "Quản lý quan hệ khách hàng (CRM) - Salesforce, HubSpot",
+          "Kỹ thuật bán hàng B2B (SPIN, Challenger Sale)",
+          "Phân tích dữ liệu bán hàng cơ bản"
+        ],
+        "advanced_skills": [
+          "Lập kế hoạch tài khoản chiến lược (Strategic Account Planning)",
+          "Quản lý đội ngũ bán hàng",
+          "Đàm phán hợp đồng phức tạp và quản lý rủi ro"
+        ]
+      }
+    },
+    {
+      "path_id": 2,
+      "track_type": "academic",
+      "career_track": "Frontend Developer",
+      "match_score": 59,
+      "why_it_fits": "Dù tư duy phân tích logic chưa phải thế mạnh (5/10), nhưng bạn có khả năng giải quyết vấn đề phức tạp (7/10) và sáng tạo (6/10) – những yếu tố quan trọng trong phát triển giao diện. Đặc biệt, kỹ năng giao tiếp (9/10) và làm việc nhóm (8/10) giúp bạn phối hợp hiệu quả với designer, backend developer và các bên liên quan. Tinh thần trách nhiệm (8/10) và thích ứng (8/10) sẽ hỗ trợ bạn vượt qua áp lực deadline và thay đổi công nghệ.",
+      "market_warning": "",
+      "role_progression": [
+        {
+          "level": "Entry",
+          "title": "Junior Frontend Developer",
+          "description": "Phát triển các thành phần giao diện người dùng đơn giản dựa trên thiết kế có sẵn. Sửa lỗi, tối ưu hiệu suất cơ bản. Làm việc dưới sự hướng dẫn của senior, tham gia code review và cập nhật kiến thức về HTML/CSS/JavaScript."
+        },
+        {
+          "level": "Mid",
+          "title": "Frontend Developer",
+          "description": "Thiết kế và phát triển các tính năng phức tạp, tối ưu trải nghiệm người dùng (UX). Làm việc độc lập với các framework như React, Vue. Phối hợp với team backend để tích hợp API, đảm bảo chất lượng code qua testing."
+        },
+        {
+          "level": "Advanced",
+          "title": "Senior Frontend Developer / Tech Lead",
+          "description": "Kiến trúc và thiết kế hệ thống frontend cho các dự án lớn. Đưa ra quyết định về công nghệ, tối ưu hiệu suất và bảo mật. Hướng dẫn, đào tạo junior developer, tham gia quy trình phát triển phần mềm toàn diện."
+        }
+      ],
+      "skill_tree": {
+        "fundamentals": [
+          "HTML5, CSS3, JavaScript (ES6+)",
+          "Responsive Design và kiến thức UI/UX cơ bản",
+          "Git và quy trình làm việc nhóm"
+        ],
+        "core_technologies": [
+          "React.js hoặc Vue.js",
+          "Quản lý state (Redux, Vuex)",
+          "Giao tiếp với RESTful API, kiến thức về HTTP"
+        ],
+        "advanced_skills": [
+          "Tối ưu hiệu suất (Lighthouse, Web Vitals)",
+          "Testing (Jest, Cypress)",
+          "TypeScript, Next.js hoặc kiến trúc micro-frontend"
+        ]
+      }
+    }
+  ],
+  "disclaimer": "Lộ trình hướng nghiệp này được tổng hợp dựa trên dữ liệu thị trường lao động tại địa phương và đặc tính cá nhân của bạn. Đây là tài liệu tham khảo, bạn hoàn toàn có quyền tự quyết định con đường học tập của mình."
+}

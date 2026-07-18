@@ -16,10 +16,9 @@ def load_market_data() -> List[dict]:
     with open(path, "r", encoding="utf-8") as f:
         return json.load(f)
 
-def calculate_cosine_similarity(vec_a: Dict[str, int], vec_b: Dict[str, int]) -> float:
+def calculate_cosine_similarity(vec_a: Dict[str, float], vec_b: Dict[str, float]) -> float:
     """
-    Tính độ tương đồng Cosine giữa hai vector điểm số.
-    Chỉ so khớp dựa trên các đặc trưng giao nhau (intersection keys).
+    Tính độ tương đồng Cosine giữa hai vector 10 chiều điểm số.
     """
     intersection_keys = set(vec_a.keys()) & set(vec_b.keys())
     if not intersection_keys:
@@ -34,15 +33,20 @@ def calculate_cosine_similarity(vec_a: Dict[str, int], vec_b: Dict[str, int]) ->
         
     return dot_product / (mag_a * mag_b)
 
-def get_track_type(field: str) -> str:
+def calculate_gap_penalty(user_level: float, required_level: float) -> float:
     """
-    Ánh xạ lĩnh vực (field) sang loại lộ trình (track_type):
-    - Lĩnh vực 'Vocational' -> 'vocational' (học nghề)
-    - Các lĩnh vực khác -> 'academic' (học thuật / đại học)
+    Tính điểm thỏa mãn kỹ năng dựa trên hiệu số (User_Level - Required_Level) và Hàm phạt bất đối xứng.
+    - Δ < 0: Bị áp phạt nặng (hệ số 1.5)
+    - Δ >= 0: Được thưởng nhẹ (hệ số 0.2)
     """
-    if field.strip().lower() == "vocational":
-        return "vocational"
-    return "academic"
+    diff = user_level - required_level
+    if diff >= 0:
+        fit_score = 1.0 + (diff * 0.2) / required_level
+    else:
+        fit_score = 1.0 + (diff * 1.5) / required_level
+        
+    # Cập nhật giới hạn điểm thỏa mãn tối thiểu là 0.0 và tối đa là 1.5
+    return max(0.0, min(1.5, fit_score))
 
 def generate_market_warnings(career: dict, expectations: dict) -> str:
     """
@@ -53,7 +57,6 @@ def generate_market_warnings(career: dict, expectations: dict) -> str:
     expected_salary = expectations.get("expected_salary_min", 0)
     willing_relocate = expectations.get("willing_to_relocate", False)
     
-    career_track = career["career_track"]
     province = career["location_data"]["province"]
     salary_min, salary_max = career["location_data"]["salary_range"]
     risk = career["location_data"]["risk_of_unemployment"]
@@ -81,7 +84,7 @@ def generate_market_warnings(career: dict, expectations: dict) -> str:
         else:
             warnings.append(
                 f"Ngành này chủ yếu tập trung tại {province}, "
-                f"không trùng khớp với khu vực mong muốn của bạn ({', '.join(preferred_locs)}) và bạn không muốn chuyển đi."
+                f"không trùng khớp với khu vực mong muốn của bạn và bạn không muốn chuyển đi."
             )
             
     # 3. Kiểm tra rủi ro thất nghiệp
@@ -92,63 +95,107 @@ def generate_market_warnings(career: dict, expectations: dict) -> str:
         
     return " / ".join(warnings) if warnings else ""
 
-def retrieve_matched_careers(student_profile: dict) -> List[dict]:
+def retrieve_matched_careers(student_profile: dict, conversation_history: List[dict]) -> List[dict]:
     """
-    Luồng xử lý RAG cục bộ bằng Python:
-    1. So khớp điểm (Cosine Similarity) của học sinh với tất cả các ngành nghề.
-    2. Ánh xạ loại lộ trình (academic / vocational).
-    3. Lọc và sinh cảnh báo dựa trên kỳ vọng lương, địa điểm.
-    4. Trả về đúng 3 ngành phù hợp nhất (ít nhất 1 học thuật, 1 học nghề).
+    Thuật toán lai phân tầng Two-Stage RAG:
+    Giai đoạn 1: So khớp Cosine Similarity điểm UCEF tìm ra Top 10.
+    Giai đoạn 2: Trích xuất tiêu chí chuyên môn, gọi LLM đánh giá và tính WFS Phạt bất đối xứng chọn Top 3.
     """
-    student_traits = student_profile.get("trait_scores", {})
+    # Import muộn để tránh vòng lặp phụ thuộc (circular dependency)
+    import roadmap_generator
+    
+    user_core = student_profile.get("core_scores", {})
     expectations = student_profile.get("market_expectations", {})
     
     market_data = load_market_data()
     scored_careers = []
     
-    # Tính điểm và sinh cảnh báo cho toàn bộ ngành nghề
+    # === GIAI ĐOẠN 1: MÀNG LỌC CORE COSIM ===
     for career in market_data:
-        # Clone để tránh chỉnh sửa trực tiếp dữ liệu gốc
         career_copy = json.loads(json.dumps(career))
         
-        # Tính toán cosine similarity và quy đổi về thang điểm 100
-        sim = calculate_cosine_similarity(student_traits, career_copy["required_traits"])
-        match_score = int(round(sim * 100))
+        sim = calculate_cosine_similarity(user_core, career_copy["core_competencies"])
+        core_score = sim * 100
         
-        career_copy["match_score"] = match_score
-        career_copy["track_type"] = get_track_type(career_copy["field"])
-        career_copy["market_warning"] = generate_market_warnings(career_copy, expectations)
-        
+        career_copy["core_similarity_score"] = core_score
         scored_careers.append(career_copy)
         
-    # Phân chia thành 2 danh sách Học thuật và Học nghề
-    academic_paths = [c for c in scored_careers if c["track_type"] == "academic"]
-    vocational_paths = [c for c in scored_careers if c["track_type"] == "vocational"]
+    # Sắp xếp để lấy ra Top 10 ngành phù hợp Core nhất
+    scored_careers.sort(key=lambda x: x["core_similarity_score"], reverse=True)
+    top_10_careers = scored_careers[:10]  # Lấy tối đa 10 ngành (với dữ liệu test hiện tại là 7)
     
-    # Sắp xếp theo điểm tương thích giảm dần
-    academic_paths.sort(key=lambda x: x["match_score"], reverse=True)
-    vocational_paths.sort(key=lambda x: x["match_score"], reverse=True)
+    # === GIAI ĐOẠN 2: THU THẬP TIÊU CHÍ VÀ CHẤM ĐIỂM ZERO-SHOT ===
+    # 1. Gom toàn bộ danh mục kỹ năng chuyên môn cần thiết của 10 ngành nghề này
+    required_skills = set()
+    for career in top_10_careers:
+        for skill_id in career["domain_competencies"].keys():
+            required_skills.add(skill_id)
+            
+    # 2. Gọi DeepSeek đánh giá điểm kỹ năng chuyên môn dựa trên lịch sử chat
+    print(f"\n[RAG Logic] Calling LLM for Zero-shot domain scoring on {len(required_skills)} skills...")
+    user_domain_scores = roadmap_generator.evaluate_domain_skills(
+        conversation_history=conversation_history,
+        required_skills=list(required_skills)
+    )
+    print(f"[RAG Logic] Domain scores evaluated by LLM: {user_domain_scores}")
     
-    selected_paths = []
-    
-    # Ràng buộc: Chọn ít nhất 1 Học thuật và 1 Học nghề
-    if academic_paths:
-        selected_paths.append(academic_paths.pop(0))
-    if vocational_paths:
-        selected_paths.append(vocational_paths.pop(0))
+    # 3. Tính điểm WFS chuyên môn và điểm tổng hợp cho từng ngành trong Top 10
+    final_ranked_careers = []
+    for career in top_10_careers:
+        domain_reqs = career["domain_competencies"]
         
-    # Chọn thêm ngành thứ 3 có điểm cao nhất còn lại từ cả 2 nhóm
-    remaining_paths = academic_paths + vocational_paths
-    remaining_paths.sort(key=lambda x: x["match_score"], reverse=True)
-    
-    if remaining_paths:
-        selected_paths.append(remaining_paths.pop(0))
+        wfs_score = 0.0
+        total_weight = 0.0
         
-    # Đánh số ID lộ trình cho frontend hiển thị (path_id: 1, 2, 3)
-    for idx, path in enumerate(selected_paths, start=1):
+        for skill_id, req in domain_reqs.items():
+            weight = req["weight_omega"]
+            req_level = req["required_level"]
+            
+            # Lấy điểm user từ LLM đánh giá (mặc định = 1.0 nếu chưa được nhắc)
+            user_level = user_domain_scores.get(skill_id, 1.0)
+            
+            # Áp dụng hàm phạt/thưởng bất đối xứng
+            penalty_multiplier = calculate_gap_penalty(user_level, req_level)
+            
+            wfs_score += penalty_multiplier * weight
+            total_weight += weight
+            
+        # Chuẩn hóa về thang điểm 100
+        domain_score = (wfs_score / total_weight) * 100 if total_weight > 0 else 0.0
+        domain_score = min(100.0, domain_score)  # Giới hạn trần điểm
+        
+        # Điểm tổng hợp cuối cùng: Core chiếm 60%, Domain chiếm 40%
+        final_score = career["core_similarity_score"] * 0.6 + domain_score * 0.4
+        career["match_score"] = int(round(final_score))
+        career["domain_score"] = domain_score
+        
+        # Tạo cảnh báo thị trường
+        career["market_warning"] = generate_market_warnings(career, expectations)
+        
+        final_ranked_careers.append(career)
+        
+    # === LỌC CỨNG THEO ĐỊA ĐIỂM (Nếu không sẵn sàng chuyển đi) ===
+    preferred_locs = expectations.get("preferred_locations", [])
+    willing_to_relocate = expectations.get("willing_to_relocate", False)
+    
+    if preferred_locs and not willing_to_relocate:
+        # Giữ lại các ngành nằm trong vùng ưa thích
+        filtered_careers = [
+            c for c in final_ranked_careers 
+            if c["location_data"]["province"] in preferred_locs
+        ]
+        # Nếu lọc cứng làm mất sạch ngành nghề, ta giữ nguyên danh sách cũ để tránh rỗng đầu ra
+        if filtered_careers:
+            final_ranked_careers = filtered_careers
+
+    # Sắp xếp giảm dần theo điểm tích hợp cuối cùng
+    final_ranked_careers.sort(key=lambda x: x["match_score"], reverse=True)
+    
+    # Chọn lấy Top 3 ngành nghề tối ưu nhất
+    top_3_selected = final_ranked_careers[:3]
+    
+    # Gán path_id hiển thị
+    for idx, path in enumerate(top_3_selected, start=1):
         path["path_id"] = idx
         
-    # Sắp xếp danh sách trả về theo điểm số phù hợp giảm dần
-    selected_paths.sort(key=lambda x: x["match_score"], reverse=True)
-    
-    return selected_paths
+    return top_3_selected

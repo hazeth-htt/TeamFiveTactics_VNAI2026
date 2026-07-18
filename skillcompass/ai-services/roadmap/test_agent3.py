@@ -19,7 +19,7 @@ def load_test_cases() -> list:
 
 def run_local_test(case_idx: int):
     """
-    Chạy thử nghiệm gọi trực tiếp module Python (RAG + Gemini).
+    Chạy thử nghiệm gọi trực tiếp module Python (RAG + DeepSeek).
     """
     cases = load_test_cases()
     
@@ -37,22 +37,25 @@ def run_local_test(case_idx: int):
     print(f"==================================================")
     
     profile = case["profile_update"]
+    history = case["conversation_history"]
     print("--- Dữ liệu đầu vào (Input từ Agent 2) ---")
-    print(f"Điểm tính cách/chuyên môn: {profile['trait_scores']}")
+    print(f"10 điểm UCEF Core: {profile['core_scores']}")
     print(f"Kỳ vọng thị trường: {profile['market_expectations']}")
+    print(f"Số lượng tin nhắn hội thoại: {len(history)}")
     
-    # 1. Chạy bước RAG (So khớp & Lọc địa lý/lương bằng Python)
-    print("\n[Bước 1-5] Đang tính toán Cosine Similarity và lọc kỳ vọng...")
-    matched = retrieve_matched_careers(profile)
+    # 1. Chạy bước RAG (So khớp & Lọc địa lý/lương bằng Python + LLM Zero-shot)
+    print("\n[RAG Engine] Đang chạy Two-Stage Recall & Reranking...")
+    matched = retrieve_matched_careers(profile, history)
     
-    print(f"-> Tìm thấy {len(matched)} ngành phù hợp:")
+    print(f"\n-> Top 3 ngành phù hợp cuối cùng sau Reranking:")
     for m in matched:
-        print(f"  * {m['career_track']} ({m['track_type']}) - Điểm so khớp: {m['match_score']}/100")
+        print(f"  * {m['career_track']} ({m['track_type']}) - Điểm so khớp cuối: {m['match_score']}/100")
+        print(f"    (Cosine Core: {m['core_similarity_score']:.1f}, WFS Domain: {m['domain_score']:.1f})")
         if m['market_warning']:
             print(f"    ⚠️ Cảnh báo: {m['market_warning']}")
             
-    # 2. Gọi Gemini API để sinh lộ trình chi tiết
-    print("\n[Bước 6] Đang gửi dữ liệu và gọi Gemini API...")
+    # 2. Gọi DeepSeek API để sinh lộ trình chi tiết
+    print("\n[Generator] Đang gửi dữ liệu và gọi DeepSeek API để sinh Roadmap...")
     try:
         roadmap = generate_career_roadmap(profile, matched)
         
@@ -67,7 +70,7 @@ def run_local_test(case_idx: int):
         print(f"Đã lưu kết quả JSON ra file: {output_file}")
         
     except Exception as e:
-        print(f"\n❌ Thất bại khi sinh lộ trình bằng Gemini API: {e}")
+        print(f"\n❌ Thất bại khi sinh lộ trình bằng DeepSeek API: {e}")
 
 def run_http_test(case_idx: int):
     """
@@ -84,14 +87,15 @@ def run_http_test(case_idx: int):
     case = ready_cases[case_idx - 1]
     url = "http://localhost:8003/generate-roadmap"
     
-    # Request body khớp schemas
+    # Request body khớp schemas mới
     payload = {
-        "user_profile": case["profile_update"]
+        "user_profile": case["profile_update"],
+        "conversation_history": case["conversation_history"]
     }
     
     print(f"\n[HTTP Request] Gửi yêu cầu tới {url} cho Học sinh {case_idx}...")
     try:
-        response = requests.post(url, json=payload, timeout=30)
+        response = requests.post(url, json=payload, timeout=45)
         if response.status_code == 200:
             print("=== [HTTP 200] PHẢN HỒI THÀNH CÔNG TỪ FASTAPI SERVER ===")
             print(json.dumps(response.json(), indent=2, ensure_ascii=False))

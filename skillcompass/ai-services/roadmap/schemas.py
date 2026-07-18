@@ -9,11 +9,16 @@ class MarketExpectations(BaseModel):
     willing_to_relocate: bool = Field(default=False, description="Sẵn sàng chuyển vị trí làm việc hay không")
 
 class UserProfile(BaseModel):
-    trait_scores: Dict[str, int] = Field(..., description="Điểm số các đặc trưng tính cách và chuyên môn (thang điểm 1-10)")
+    core_scores: Dict[str, float] = Field(..., description="Điểm số 10 năng lực cốt lõi UCEF (thang điểm 1-10)")
     market_expectations: MarketExpectations = Field(..., description="Kỳ vọng thực tế của học sinh")
+
+class ChatMessage(BaseModel):
+    role: str = Field(..., description="Vai trò: user | assistant | system")
+    content: str = Field(..., description="Nội dung tin nhắn")
 
 class RoadmapRequest(BaseModel):
     user_profile: UserProfile
+    conversation_history: List[ChatMessage] = Field(default_factory=list, description="Lịch sử hội thoại đầy đủ giữa học sinh và Agent 2")
 
 
 # --- RESPONSE SCHEMAS (To NestJS) ---
@@ -32,7 +37,7 @@ class CareerPath(BaseModel):
     path_id: int = Field(..., description="ID định danh lộ trình")
     track_type: str = Field(..., description="Loại lộ trình: academic (đại học) | vocational (học nghề)")
     career_track: str = Field(..., description="Tên ngành nghề hướng tới")
-    match_score: int = Field(..., description="Điểm phù hợp tính cách (1-100)")
+    match_score: int = Field(..., description="Điểm phù hợp tính cách & chuyên môn WFS (1-100)")
     why_it_fits: str = Field(..., description="Giải thích lý do lựa chọn và sự tương hợp")
     market_warning: str = Field("", description="Cảnh báo thị trường nếu có bất đồng về lương/địa điểm hoặc rủi ro thất nghiệp")
     role_progression: List[RoleProgression] = Field(..., description="Lộ trình thăng tiến 3 bước")

@@ -37,7 +37,7 @@ def generate_roadmap(request: RoadmapRequest):
         safe_print(f"\n[Request] Received roadmap request. Preferred locations: {user_profile_dict['market_expectations']['preferred_locations']}")
         
         # Bước 1 - 5: Sử dụng logic Python để so khớp Cosine và lọc kỳ vọng thực tế
-        matched_careers = retrieve_matched_careers(user_profile_dict)
+        matched_careers = retrieve_matched_careers(user_profile_dict, request.conversation_history)
         if not matched_careers:
             raise HTTPException(
                 status_code=404, 
