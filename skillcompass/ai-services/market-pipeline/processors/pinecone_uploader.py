@@ -88,6 +88,10 @@ def upsert_to_pinecone(index, pinecone_data: PineconeData, db_data_dict: dict, d
         print(f"    Metadata keys: {list(metadata.keys())}")
         return True
 
+    if index is None:
+        print(f"  ⚠️  [Pinecone] Bỏ qua Pinecone (skip-pinecone hoạt động) cho {pinecone_data.vector_id}")
+        return True
+
     try:
         index.upsert(vectors=[
             (pinecone_data.vector_id, vector_10d, metadata)

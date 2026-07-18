@@ -56,7 +56,7 @@ LIMIT %s;
 
 SQL_UPDATE_VECTOR_ID = """
 UPDATE public.career_tracks
-SET vector_id = %s, updated_at = NOW()
+SET vector_id = %s
 WHERE id = %s;
 """
 
