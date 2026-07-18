@@ -1,0 +1,117 @@
+[
+  {
+    "field": "Công nghệ thông tin",
+    "careers": ["Lập trình viên", "Kỹ sư AI / Machine Learning", "Kỹ sư An ninh mạng", "Kỹ sư Robot", "Phân tích dữ liệu"],
+    "core_traits": {
+      "analytical_thinking": 9,
+      "problem_solving": 9,
+      "continuous_learning": 8,
+      "creativity_innovation": 7,
+      "responsibility_autonomy": 7
+    },
+    "market_outlook": "Tiềm năng rất cao — xu hướng công nghệ 5.0 tạo nhu cầu nhân lực lâu dài. CNTT là ngành thiếu hụt nhân lực liên tục tại Việt Nam.",
+    "fit_signals": [
+      "Thích tự debug lỗi, không nản khi gặp khó",
+      "Ham tìm hiểu nguyên lý hoạt động của công nghệ",
+      "Kiên nhẫn ngồi một mình giải quyết vấn đề kỹ thuật nhiều giờ",
+      "Tự học lập trình hoặc công nghệ mới ngoài chương trình"
+    ],
+    "warning_signals": [
+      "Chỉ thích chơi game nhưng không thích lập trình hay hiểu kỹ thuật",
+      "Không có khả năng tập trung lâu vào một vấn đề logic"
+    ],
+    "counselor_probe": "Khi gặp lỗi máy tính hoặc app, bạn thích tự tìm hiểu nguyên nhân hay nhờ người khác sửa luôn?"
+  },
+  {
+    "field": "Y tế & Chăm sóc sức khỏe",
+    "careers": ["Bác sĩ", "Dược sĩ", "Điều dưỡng", "Nghiên cứu Di truyền học", "Kỹ thuật Y sinh"],
+    "core_traits": {
+      "responsibility_autonomy": 9,
+      "work_ethics_integrity": 9,
+      "continuous_learning": 9,
+      "adaptability_resilience": 8,
+      "team_collaboration": 7
+    },
+    "market_outlook": "Nhu cầu ổn định và ngày càng tăng — dân số già hóa, bệnh tật phức tạp hơn tạo ra nhu cầu bền vững. Khan hiếm nhân lực do đào tạo khó và dài.",
+    "fit_signals": [
+      "Kiên nhẫn và tỉ mỉ khi chăm sóc người khác",
+      "Không sợ áp lực cao hoặc tình huống khẩn cấp",
+      "Có trách nhiệm cao với công việc được giao",
+      "Sẵn sàng học suốt đời vì y học không ngừng phát triển"
+    ],
+    "warning_signals": [
+      "Không có khả năng chịu áp lực tinh thần cao trong thời gian dài",
+      "Thiếu sự tỉ mỉ và cẩn thận trong công việc"
+    ],
+    "counselor_probe": "Bạn có thấy mình kiên nhẫn khi cần chăm sóc hoặc hỗ trợ người khác trong thời gian dài không?"
+  },
+  {
+    "field": "Kinh tế & Marketing",
+    "careers": ["Marketing", "Kinh doanh quốc tế", "Phân tích dữ liệu kinh doanh", "Truyền thông số", "PR & Quảng cáo"],
+    "core_traits": {
+      "effective_communication": 9,
+      "creativity_innovation": 8,
+      "analytical_thinking": 7,
+      "team_collaboration": 8,
+      "critical_thinking": 7
+    },
+    "market_outlook": "Tiềm năng lâu dài — mọi doanh nghiệp đều cần marketing. Nhu cầu tăng mạnh với digital marketing và data-driven marketing.",
+    "fit_signals": [
+      "Thích quan sát hành vi người dùng và xu hướng thị trường",
+      "Có khả năng thuyết phục và trình bày ý tưởng hấp dẫn",
+      "Sáng tạo trong cách truyền đạt thông điệp",
+      "Thích làm việc với nhiều người và dự án đa dạng"
+    ],
+    "warning_signals": [
+      "Cực kỳ hướng nội, không thích giao tiếp hoặc thuyết phục người khác",
+      "Không có sự tò mò về hành vi và tâm lý người dùng"
+    ],
+    "counselor_probe": "Nếu cần thuyết phục gia đình về một quyết định quan trọng, bạn thường làm thế nào?"
+  },
+  {
+    "field": "Dịch vụ & Du lịch",
+    "careers": ["Hướng dẫn viên du lịch", "Quản lý khách sạn", "Quản lý nhà hàng & F&B", "Event Organizer"],
+    "core_traits": {
+      "effective_communication": 9,
+      "adaptability_resilience": 8,
+      "team_collaboration": 8,
+      "work_ethics_integrity": 7,
+      "problem_solving": 7
+    },
+    "market_outlook": "Hồi phục mạnh sau Covid — du lịch Việt Nam tăng trưởng ổn định. Nhu cầu nhân lực chất lượng cao trong dịch vụ ngày càng tăng.",
+    "fit_signals": [
+      "Thích sự xê dịch và gặp gỡ nhiều người khác nhau mỗi ngày",
+      "Linh hoạt và vui vẻ xử lý tình huống bất ngờ",
+      "Không ngại làm việc giờ cao điểm hoặc cuối tuần",
+      "Có kỹ năng giao tiếp tốt và thân thiện tự nhiên"
+    ],
+    "warning_signals": [
+      "Không thích di chuyển nhiều hoặc làm việc ngoài giờ hành chính",
+      "Khó chịu khi phải phục vụ khách hàng khó tính hoặc thay đổi liên tục"
+    ],
+    "counselor_probe": "Bạn thích những công việc có sự xê dịch, gặp gỡ nhiều người khác nhau mỗi ngày không?"
+  },
+  {
+    "field": "An ninh mạng",
+    "careers": ["Chuyên gia An ninh mạng", "Kiểm thử xâm nhập (Pentester)", "Phân tích mã độc", "Giám sát hệ thống"],
+    "core_traits": {
+      "analytical_thinking": 9,
+      "critical_thinking": 9,
+      "problem_solving": 9,
+      "continuous_learning": 8,
+      "responsibility_autonomy": 8
+    },
+    "market_outlook": "Nhu cầu bùng nổ — tội phạm mạng tăng mạnh kéo theo thiếu hụt nhân lực chuyên sâu nghiêm trọng. Mức lương cao và cơ hội làm việc quốc tế lớn.",
+    "fit_signals": [
+      "Tò mò về cách hệ thống máy tính hoạt động và bị tấn công",
+      "Kiên nhẫn ngồi phân tích log và mã lệnh phức tạp nhiều giờ",
+      "Tư duy như kẻ tấn công để xây dựng phòng thủ",
+      "Luôn cập nhật xu hướng tấn công và bảo mật mới nhất"
+    ],
+    "warning_signals": [
+      "Không có tư duy tấn công/phòng thủ hệ thống",
+      "Không thích học sâu về kỹ thuật và không có sự kiên nhẫn cần thiết"
+    ],
+    "counselor_probe": "Bạn có bao giờ tò mò về cách các hệ thống máy tính bị tấn công hoặc bảo vệ như thế nào không?"
+  }
+]

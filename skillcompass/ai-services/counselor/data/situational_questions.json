@@ -1,0 +1,112 @@
+{
+  "adaptability_resilience": {
+    "trait_label": "Khả năng thích ứng và vượt khó",
+    "anchor_question": "Khi kế hoạch bị thay đổi đột ngột, bạn thường cảm thấy thế nào và phản ứng ra sao?",
+    "situational_questions": [
+      "Đã bao giờ bạn phải chuyển sang một nhóm hoàn toàn mới giữa chừng một dự án chưa? Bạn thích nghi thế nào?",
+      "Lần gần nhất bạn bị điểm kém hoặc thất bại ở điều gì đó bạn cố gắng — bạn đã làm gì sau đó?",
+      "Nếu trường thay đổi lịch thi đột ngột trong khi bạn đã chuẩn bị kỹ, bạn phản ứng thế nào?"
+    ],
+    "high_score_signals": ["tự điều chỉnh kế hoạch", "không hoảng loạn", "tìm cách khác", "đứng dậy sau thất bại"],
+    "low_score_signals": ["rất khó chịu khi thay đổi", "bỏ cuộc khi gặp khó khăn", "cần nhiều thời gian để ổn định lại"]
+  },
+  "analytical_thinking": {
+    "trait_label": "Tư duy phân tích và logic",
+    "anchor_question": "Khi gặp một bài toán hoặc vấn đề phức tạp, bạn thích tự mày mò tìm quy luật hay muốn được chỉ cách làm luôn?",
+    "situational_questions": [
+      "Hãy tưởng tượng bạn đang học lập trình và code bị lỗi. Bạn sẽ làm gì đầu tiên: tìm kiếm ngay trên Google hay ngồi đọc lại từng dòng lệnh xem sai ở đâu?",
+      "Một bài toán Toán có nhiều cách giải. Bạn có xu hướng dừng lại ở cách giải đầu tiên ra được kết quả, hay sẽ thử tiếp các cách khác để tìm cách ngắn hơn?",
+      "Khi xem điểm thi về, ngoài điểm số, bạn có tự phân tích xem mình sai phần nào và tại sao không?"
+    ],
+    "high_score_signals": ["tự debug", "phân tích nguyên nhân", "tìm quy luật", "so sánh nhiều phương án"],
+    "low_score_signals": ["chỉ cần kết quả", "không quan tâm đến lý do", "hỏi ngay mà không tự thử"]
+  },
+  "continuous_learning": {
+    "trait_label": "Ham học hỏi và tự nâng cao",
+    "anchor_question": "Ngoài giờ học trên lớp, bạn có thường tự tìm hiểu thêm về những chủ đề mình thấy thú vị không?",
+    "situational_questions": [
+      "Bạn đã bao giờ tự học một kỹ năng hoàn toàn mới — ví dụ như lập trình, vẽ, nhạc cụ, hay nấu ăn — mà không ai yêu cầu chưa?",
+      "Nếu phát hiện có một công nghệ mới rất thú vị, bạn sẽ làm gì: xem video giới thiệu qua loa, hay tìm hiểu đến khi hiểu được nguyên lý hoạt động?",
+      "Khi đọc được một thông tin thú vị, bạn có hay tự đặt câu hỏi 'tại sao lại như vậy' và đào sâu thêm không?"
+    ],
+    "high_score_signals": ["tự học ngoài chương trình", "tìm hiểu đến tận cùng", "đặt câu hỏi chủ động", "không bằng lòng với kiến thức bề mặt"],
+    "low_score_signals": ["chỉ học những gì bắt buộc", "không có thói quen tự tìm hiểu thêm"]
+  },
+  "creativity_innovation": {
+    "trait_label": "Sáng tạo và đổi mới giải pháp",
+    "anchor_question": "Khi được giao bài tập nhóm tự chọn chủ đề, bạn thích đề xuất ý tưởng hoàn toàn mới hay theo ý tưởng đã có sẵn của nhóm?",
+    "situational_questions": [
+      "Nếu trường tổ chức cuộc thi thiết kế poster, bạn nghĩ ngay đến một ý tưởng chưa ai làm, hay tham khảo các mẫu có sẵn rồi chỉnh sửa?",
+      "Khi chơi game, bạn thích chơi theo chiến thuật đã biết hiệu quả, hay thích thử nghiệm cách chơi mới dù chưa chắc thắng?",
+      "Có khi nào bạn tự nghĩ ra một cách làm bài khác với thầy cô dạy và nó vẫn đúng không? Kể cho tôi nghe."
+    ],
+    "high_score_signals": ["đề xuất ý tưởng mới", "thử nghiệm cách làm khác", "không ngại thất bại khi sáng tạo"],
+    "low_score_signals": ["thích làm theo công thức có sẵn", "không thích rủi ro từ ý tưởng mới"]
+  },
+  "critical_thinking": {
+    "trait_label": "Tư duy phản biện và đánh giá đa chiều",
+    "anchor_question": "Khi đọc một bài viết trên mạng xã hội về một chủ đề nóng, bạn thường phản ứng thế nào?",
+    "situational_questions": [
+      "Nếu thầy cô hoặc sách giáo khoa nói điều gì đó mà bạn thấy mâu thuẫn với thực tế bạn biết, bạn sẽ làm gì?",
+      "Bạn có bao giờ thay đổi quan điểm của mình sau khi nghe lý luận từ người khác không? Kể ví dụ cụ thể.",
+      "Khi bạn bè share một tin tức gây sốc, phản ứng đầu tiên của bạn là gì — tin ngay, hay tìm kiếm thêm để xác minh?"
+    ],
+    "high_score_signals": ["đặt câu hỏi về nguồn gốc thông tin", "xem xét nhiều góc độ", "thay đổi quan điểm khi có bằng chứng tốt hơn"],
+    "low_score_signals": ["tin ngay những gì nghe thấy", "không thích bị phản bác", "chỉ tin nguồn quen thuộc"]
+  },
+  "effective_communication": {
+    "trait_label": "Giao tiếp hiệu quả và thuyết phục",
+    "anchor_question": "Khi cần giải thích một khái niệm khó cho người khác hiểu, bạn thường làm thế nào?",
+    "situational_questions": [
+      "Nếu bạn muốn thuyết phục gia đình cho phép học một ngành mà họ chưa biết, bạn sẽ trình bày như thế nào?",
+      "Bạn có hay là người chủ động giải thích hoặc hướng dẫn bạn bè trong lớp khi họ không hiểu bài không?",
+      "Khi cần trình bày ý kiến trước cả lớp, bạn cảm thấy thế nào — hào hứng, bình thường, hay hơi lo lắng?"
+    ],
+    "high_score_signals": ["thích giải thích cho người khác", "dùng ví dụ cụ thể để minh họa", "thuyết phục bằng lý lẽ rõ ràng"],
+    "low_score_signals": ["ngại nói trước đám đông", "khó diễn đạt ý tưởng của mình", "thường để người khác nói thay"]
+  },
+  "problem_solving": {
+    "trait_label": "Giải quyết vấn đề thực tiễn",
+    "anchor_question": "Khi gặp sự cố bất ngờ như máy tính hỏng hay mất điện giữa buổi, bạn thường phản ứng như thế nào?",
+    "situational_questions": [
+      "Ở nhà bạn có đồ vật nào bị hỏng mà bạn đã tự tìm hiểu và sửa được không? Kể cho tôi nghe.",
+      "Hãy nhớ lại lần gần nhất bạn gặp một tình huống hoàn toàn không có trong kế hoạch. Bạn đã xoay sở thế nào?",
+      "Nếu đang làm bài thi mà phát hiện câu hỏi có sự mâu thuẫn về đề, bạn sẽ xử lý thế nào?"
+    ],
+    "high_score_signals": ["tự tìm cách giải quyết", "không bỏ cuộc khi gặp trở ngại", "có khả năng ứng biến nhanh"],
+    "low_score_signals": ["bị tê liệt khi không có hướng dẫn", "cần người khác giải quyết thay", "dễ hoảng loạn khi có sự cố"]
+  },
+  "responsibility_autonomy": {
+    "trait_label": "Tự chủ và chịu trách nhiệm",
+    "anchor_question": "Khi được giao một nhiệm vụ mà không có ai giám sát, bạn làm việc như thế nào?",
+    "situational_questions": [
+      "Bạn có bao giờ tự đặt ra mục tiêu cá nhân như học tiếng Anh, tập thể dục, hay đọc sách và kiên trì thực hiện không? Kéo dài được bao lâu?",
+      "Khi mắc lỗi sai trong học tập, bạn thường làm gì đầu tiên: tìm cách giải thích hay nhận trách nhiệm và tìm cách sửa?",
+      "Có khi nào bạn tự nguyện nhận thêm việc mà không ai yêu cầu, vì bạn thấy đó là điều đúng cần làm không?"
+    ],
+    "high_score_signals": ["chủ động không cần nhắc nhở", "nhận lỗi và tìm cách khắc phục", "tự quản lý thời gian tốt"],
+    "low_score_signals": ["cần ai đó nhắc mới làm", "hay đổ lỗi cho hoàn cảnh", "thiếu kỷ luật tự giác"]
+  },
+  "team_collaboration": {
+    "trait_label": "Làm việc nhóm và hỗ trợ đồng đội",
+    "anchor_question": "Khi làm việc nhóm, bạn cảm thấy thoải mái nhất khi đảm nhận vai trò nào?",
+    "situational_questions": [
+      "Trong một dự án nhóm, nếu một bạn làm sai phần của mình và ảnh hưởng đến cả nhóm, bạn sẽ xử lý như thế nào?",
+      "Bạn đã bao giờ tình nguyện ở lại muộn hơn hoặc làm thêm để giúp bạn nhóm hoàn thành phần của họ chưa?",
+      "Khi có xung đột quan điểm trong nhóm, bạn thường đứng về phía nào hay đóng vai trò hòa giải?"
+    ],
+    "high_score_signals": ["sẵn sàng hỗ trợ người khác", "đặt mục tiêu nhóm lên trên cá nhân", "biết lắng nghe ý kiến khác"],
+    "low_score_signals": ["thích làm một mình hơn", "khó chịu khi phải phụ thuộc vào người khác", "hay xung đột trong nhóm"]
+  },
+  "work_ethics_integrity": {
+    "trait_label": "Đạo đức nghề nghiệp và tính trung thực",
+    "anchor_question": "Nếu phát hiện bạn mình đang gian lận trong bài thi, bạn sẽ làm gì?",
+    "situational_questions": [
+      "Đã bao giờ bạn phải chọn giữa làm đúng nhưng thiệt thòi cho bản thân và làm không đúng nhưng có lợi hơn chưa? Bạn đã chọn gì?",
+      "Khi deadline gấp và bạn chưa xong phần của mình, bạn sẽ nói thật với nhóm hay tìm cách che giấu?",
+      "Nếu được giao tiền thừa khi mua đồ, phản ứng đầu tiên của bạn là gì?"
+    ],
+    "high_score_signals": ["trung thực ngay cả khi bất lợi", "không gian lận dù có cơ hội", "giữ cam kết đã hứa"],
+    "low_score_signals": ["tìm cách có lợi cho bản thân dù không hoàn toàn đúng", "né tránh trách nhiệm khi sai"]
+  }
+}
