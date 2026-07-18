@@ -18,13 +18,12 @@ def save_json_log(category: str, filename_prefix: str, data: Any):
         log_dir = os.path.join(base_dir, "logs", category)
         os.makedirs(log_dir, exist_ok=True)
         
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S_%f")
         # Sanitize filename prefix
         safe_prefix = "".join(c for c in filename_prefix if c.isalnum() or c in ("-", "_")).rstrip()
         if not safe_prefix:
             safe_prefix = "unknown"
             
-        filename = f"{safe_prefix}_{timestamp}.json"
+        filename = f"{safe_prefix}.json"
         filepath = os.path.join(log_dir, filename)
         
         with open(filepath, "w", encoding="utf-8") as f:
