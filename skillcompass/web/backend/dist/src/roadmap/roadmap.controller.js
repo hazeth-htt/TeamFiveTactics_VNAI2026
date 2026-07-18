@@ -21,7 +21,7 @@ let RoadmapController = class RoadmapController {
         this.roadmapService = roadmapService;
     }
     async createRoadmap(body) {
-        return this.roadmapService.generateRoadmap(body.user_profile);
+        return this.roadmapService.generateRoadmap(body);
     }
 };
 exports.RoadmapController = RoadmapController;

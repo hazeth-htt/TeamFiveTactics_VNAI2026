@@ -73,7 +73,8 @@ def _map_track_type_to_field_id(track_type: str) -> str:
     if not track_type:
         return "general"
     # Chuẩn hóa Unicode và loại bỏ dấu tiếng Việt
-    t = unicodedata.normalize('NFKD', track_type)
+    t = track_type.replace('đ', 'd').replace('Đ', 'd')
+    t = unicodedata.normalize('NFKD', t)
     t = t.encode('ascii', 'ignore').decode('ascii')
     t = t.lower().strip()
     # Thay tất cả ký tự không phải a-z0-9 bằng dấu gạch dưới

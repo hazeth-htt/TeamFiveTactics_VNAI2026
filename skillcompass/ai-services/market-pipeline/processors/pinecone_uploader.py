@@ -34,24 +34,26 @@ def _build_vector(core_competencies_dict: dict) -> list[float]:
 
 
 def _build_metadata(db_data_dict: dict, domain_competencies: dict) -> dict:
-    """
-    Tạo dict Metadata để lưu vào Pinecone cùng với vector.
-    Metadata dùng để:
-    - Hard filtering (Lọc theo province, salary_min, field_id)
-    - WFS Re-ranking (Dùng domain_competencies_json)
+    timeline = db_data_dict.get("timeline_trends")
+    if not isinstance(timeline, dict):
+        timeline = {}
+        
+    risk_of_unemployment = timeline.get("risk_of_unemployment", "Medium")
+    try:
+        trend_score = float(timeline.get("trend_score", 0.5))
+    except (ValueError, TypeError):
+        trend_score = 0.5
 
-    ⚠️ Pinecone Metadata chỉ chấp nhận: str, int, float, bool, list[str].
-    Dict và nested object phải được json.dumps() thành chuỗi string.
-    """
     return {
         # Hard-filter fields (Agent 3 có thể filter trực tiếp)
         "career_track":           db_data_dict["career_track"],
         "field_id":               db_data_dict["field_id"],
         "avg_salary_min":         db_data_dict["avg_salary_min"],
         "avg_salary_max":         db_data_dict["avg_salary_max"],
-        "risk_of_unemployment":   db_data_dict["timeline_trends"]["risk_of_unemployment"],
-        "trend_score":            db_data_dict["timeline_trends"]["trend_score"],
-        "region_demand_json":     json.dumps(db_data_dict["region_demand"]),
+        "risk_of_unemployment":   risk_of_unemployment,
+        "trend_score":            trend_score,
+        "region_demand_json":     json.dumps(db_data_dict.get("region_demand") or {}),
+        "timeline_trends_json":   json.dumps(timeline),
 
         # WFS Re-ranking field (Agent 3 dùng json.loads() để decode)
         "domain_competencies_json": json.dumps(domain_competencies),

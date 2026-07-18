@@ -1,98 +1,170 @@
--- ============================================================
--- NHÓM A: DỮ LIỆU ĐỊNH HƯỚNG NGHỀ NGHIỆP (HỆ THỐNG)
--- ============================================================
+-- Thiết lập Encoding và Search Path
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = 'on';
+SELECT pg_catalog.set_config('search_path', '', false);
 
--- 1. Bảng career_tracks: Danh mục các ngành nghề hướng nghiệp
-CREATE TABLE career_tracks (
-    id              SERIAL PRIMARY KEY,
-    career_track    VARCHAR(100)    NOT NULL,               -- "Data Science", "Kỹ thuật Ô tô"
-    track_type      VARCHAR(20)     NOT NULL                -- "academic" | "vocational"
-                    CHECK (track_type IN ('academic', 'vocational')),
-    description     TEXT,
-    avg_salary_min  INTEGER,                                -- VND/tháng
-    avg_salary_max  INTEGER,
-    education_route TEXT,                                   -- "Đại học CNTT" | "Cao đẳng nghề 2 năm"
-    typical_employers TEXT[],                               -- ["FPT", "VNG", "Viettel"]
-    region_demand   JSONB,                                  -- { "HCM": "high", "HN": "medium" }
-    vector_id       VARCHAR(100),                           -- ID trong Pinecone (để đối chiếu)
-    created_at      TIMESTAMP DEFAULT NOW()
+-- ==========================================
+-- 1. TẠO CÁC SEQUENCE TỰ TĂNG CHO KHÓA CHÍNH
+-- ==========================================
+CREATE SEQUENCE public.career_tracks_id_seq AS integer START WITH 1 INCREMENT BY 1 NO MINVALUE NO MAXVALUE CACHE 1;
+CREATE SEQUENCE public.conversation_messages_id_seq AS integer START WITH 1 INCREMENT BY 1 NO MINVALUE NO MAXVALUE CACHE 1;
+CREATE SEQUENCE public.roadmaps_id_seq AS integer START WITH 1 INCREMENT BY 1 NO MINVALUE NO MAXVALUE CACHE 1;
+CREATE SEQUENCE public.role_progressions_id_seq AS integer START WITH 1 INCREMENT BY 1 NO MINVALUE NO MAXVALUE CACHE 1;
+CREATE SEQUENCE public.skill_trees_id_seq AS integer START WITH 1 INCREMENT BY 1 NO MINVALUE NO MAXVALUE CACHE 1;
+CREATE SEQUENCE public.user_profiles_id_seq AS integer START WITH 1 INCREMENT BY 1 NO MINVALUE NO MAXVALUE CACHE 1;
+CREATE SEQUENCE public.users_id_seq AS integer START WITH 1 INCREMENT BY 1 NO MINVALUE NO MAXVALUE CACHE 1;
+
+-- ==========================================
+-- 2. TẠO CÁC BẢNG (TABLES)
+-- ==========================================
+CREATE TABLE public.career_tracks (
+    id integer NOT NULL DEFAULT nextval('public.career_tracks_id_seq'::regclass),
+    career_track character varying(100) NOT NULL,
+    track_type character varying(50) NOT NULL,
+    description text,
+    avg_salary_min integer,
+    avg_salary_max integer,
+    education_route text,
+    typical_employers text[],
+    region_demand jsonb,
+    vector_id character varying(100),
+    created_at timestamp without time zone DEFAULT now(),
+    local_demand_signals jsonb,
+    timeline_trends jsonb,
+    embedding jsonb
 );
 
--- 2. Bảng role_progressions: Lộ trình vị trí công việc của từng career track
-CREATE TABLE role_progressions (
-    id              SERIAL PRIMARY KEY,
-    career_track_id INTEGER NOT NULL REFERENCES career_tracks(id) ON DELETE CASCADE,
-    level           VARCHAR(20) NOT NULL                    -- "Entry" | "Mid" | "Advanced"
-                    CHECK (level IN ('Entry', 'Mid', 'Advanced')),
-    title           VARCHAR(150) NOT NULL,                  -- "Data Analyst Intern"
-    description     TEXT,
-    sort_order      INTEGER DEFAULT 0                       -- thứ tự hiển thị
+CREATE TABLE public.role_progressions (
+    id integer NOT NULL DEFAULT nextval('public.role_progressions_id_seq'::regclass),
+    career_track_id integer NOT NULL,
+    level character varying(20) NOT NULL,
+    title character varying(150) NOT NULL,
+    description text,
+    sort_order integer DEFAULT 0,
+    CONSTRAINT role_progressions_level_check CHECK (((level)::text = ANY ((ARRAY['Entry'::character varying, 'Mid'::character varying, 'Advanced'::character varying])::text[])))
 );
 
--- 3. Bảng skill_trees: Kỹ năng cần thiết theo từng career track
-CREATE TABLE skill_trees (
-    id              SERIAL PRIMARY KEY,
-    career_track_id INTEGER NOT NULL REFERENCES career_tracks(id) ON DELETE CASCADE,
-    category        VARCHAR(50) NOT NULL                    -- "fundamentals" | "core_technologies" | "advanced_skills"
-                    CHECK (category IN ('fundamentals', 'core_technologies', 'advanced_skills')),
-    skill_name      VARCHAR(100) NOT NULL                   -- "Python", "PLC Siemens", "SQL"
+CREATE TABLE public.skill_trees (
+    id integer NOT NULL DEFAULT nextval('public.skill_trees_id_seq'::regclass),
+    career_track_id integer NOT NULL,
+    category character varying(50) NOT NULL,
+    skill_name character varying(100) NOT NULL,
+    CONSTRAINT skill_trees_category_check CHECK (((category)::text = ANY ((ARRAY['fundamentals'::character varying, 'core_technologies'::character varying, 'advanced_skills'::character varying])::text[])))
 );
 
-
--- ============================================================
--- NHÓM B: DỮ LIỆU NGƯỜI DÙNG & TIẾN TRÌNH CHAT AI (NestJS ghi)
--- ============================================================
-
--- 4. Bảng users: Quản lý tài khoản (Đăng ký hoặc ẩn danh)
-CREATE TABLE users (
-    id              SERIAL PRIMARY KEY,
-    username        VARCHAR(100) UNIQUE,                    -- Dùng cho login (custom JWT Auth)
-    email           VARCHAR(255) UNIQUE NOT NULL,           -- Email đăng ký tài khoản
-    password_hash   VARCHAR(255) NOT NULL,                  -- Mật khẩu mã hóa lưu trên DB của NestJS
-    anonymous_id    UUID UNIQUE,                            -- Dùng để định danh nếu là khách vãng lai
-    created_at      TIMESTAMP DEFAULT NOW()
+CREATE TABLE public.users (
+    id integer NOT NULL DEFAULT nextval('public.users_id_seq'::regclass),
+    username character varying(100),
+    email character varying(255) NOT NULL,
+    password_hash character varying(255) NOT NULL,
+    anonymous_id uuid,
+    created_at timestamp without time zone DEFAULT now()
 );
 
--- 5. Bảng sessions: Phiên trò chuyện của học sinh
-CREATE TABLE sessions (
-    id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    user_id         INTEGER REFERENCES users(id) ON DELETE SET NULL,
-    started_at      TIMESTAMP DEFAULT NOW(),
-    ended_at        TIMESTAMP,
-    is_complete     BOOLEAN DEFAULT FALSE                   -- true khi đã generate xong roadmap cho học sinh
+CREATE TABLE public.sessions (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    user_id integer,
+    started_at timestamp without time zone DEFAULT now(),
+    ended_at timestamp without time zone,
+    is_complete boolean DEFAULT false
 );
 
--- 6. Bảng conversation_messages: Backup lịch sử chat (Redis là primary, PostgreSQL để lưu trữ lâu dài)
-CREATE TABLE conversation_messages (
-    id              SERIAL PRIMARY KEY,
-    session_id      UUID NOT NULL REFERENCES sessions(id) ON DELETE CASCADE,
-    role            VARCHAR(10) NOT NULL                    -- "user" | "assistant"
-                    CHECK (role IN ('user', 'assistant')),
-    content         TEXT NOT NULL,
-    created_at      TIMESTAMP DEFAULT NOW()
+CREATE TABLE public.conversation_messages (
+    id integer NOT NULL DEFAULT nextval('public.conversation_messages_id_seq'::regclass),
+    session_id uuid NOT NULL,
+    role character varying(10) NOT NULL,
+    content text NOT NULL,
+    created_at timestamp without time zone DEFAULT now(),
+    CONSTRAINT conversation_messages_role_check CHECK (((role)::text = ANY ((ARRAY['user'::character varying, 'assistant'::character varying])::text[])))
 );
 
--- 7. Bảng user_profiles: Kết quả phân tích tính cách, thế mạnh từ Agent 2 (Evaluator)
--- ĐÃ LOẠI BỎ trường context_inferred theo yêu cầu
-CREATE TABLE user_profiles (
-    id                SERIAL PRIMARY KEY,
-    session_id        UUID UNIQUE NOT NULL REFERENCES sessions(id) ON DELETE CASCADE,
-    trait_scores      JSONB,                                  -- { "logical_thinking": 8, "creativity": 7, "favorite_subjects": ["Toán", "Anh"] }
-    confidence_scores JSONB,                                  -- { "logical_thinking": 0.85, "creativity": 0.9 }
-    is_ready          BOOLEAN DEFAULT FALSE,                  -- true = đủ dữ liệu để kích hoạt Agent 3 vẽ roadmap
-    updated_at        TIMESTAMP DEFAULT NOW()
+CREATE TABLE public.user_profiles (
+    id integer NOT NULL DEFAULT nextval('public.user_profiles_id_seq'::regclass),
+    session_id uuid NOT NULL,
+    trait_scores jsonb,
+    confidence_scores jsonb,
+    is_ready boolean DEFAULT false,
+    updated_at timestamp without time zone DEFAULT now()
 );
 
--- 8. Bảng roadmaps: Kết quả lộ trình học tập/nghề nghiệp chi tiết từ Agent 3 (Generator)
-CREATE TABLE roadmaps (
-    id                   SERIAL PRIMARY KEY,
-    session_id           UUID UNIQUE NOT NULL REFERENCES sessions(id) ON DELETE CASCADE,
-    user_profile_summary TEXT,                               -- tóm tắt ngắn gọn thế mạnh của học sinh dưới dạng văn bản
-    paths                JSONB NOT NULL,                     -- mảng các bước đi, tổ hợp môn thi, trường ĐH/Cao đẳng gợi ý
-    disclaimer           TEXT NOT NULL,                      -- lời khuyên/cảnh báo mang tính tham khảo cho học sinh
-    generated_at         TIMESTAMP DEFAULT NOW()
+CREATE TABLE public.roadmaps (
+    id integer NOT NULL DEFAULT nextval('public.roadmaps_id_seq'::regclass),
+    session_id uuid NOT NULL,
+    user_profile_summary text,
+    paths jsonb NOT NULL,
+    disclaimer text NOT NULL,
+    generated_at timestamp without time zone DEFAULT now()
 );
 
-ALTER TABLE career_tracks 
-ADD COLUMN local_demand_signals JSONB, -- Lưu xu hướng tuyển dụng, kỹ năng thiếu hụt theo vùng miền
-ADD COLUMN timeline_trends JSONB;      -- Lưu biến động nhu cầu tuyển dụng theo thời gian
+-- ==========================================
+-- 3. GẮN SEQUENCE VÀO BẢNG
+-- ==========================================
+ALTER SEQUENCE public.career_tracks_id_seq OWNED BY public.career_tracks.id;
+ALTER SEQUENCE public.conversation_messages_id_seq OWNED BY public.conversation_messages.id;
+ALTER SEQUENCE public.roadmaps_id_seq OWNED BY public.roadmaps.id;
+ALTER SEQUENCE public.role_progressions_id_seq OWNED BY public.role_progressions.id;
+ALTER SEQUENCE public.skill_trees_id_seq OWNED BY public.skill_trees.id;
+ALTER SEQUENCE public.user_profiles_id_seq OWNED BY public.user_profiles.id;
+ALTER SEQUENCE public.users_id_seq OWNED BY public.users.id;
+
+-- ==========================================
+-- 4. THIẾT LẬP KHÓA CHÍNH (PRIMARY KEYS) VÀ RÀNG BUỘC UNIQUE
+-- ==========================================
+ALTER TABLE ONLY public.career_tracks ADD CONSTRAINT career_tracks_pkey PRIMARY KEY (id);
+ALTER TABLE ONLY public.conversation_messages ADD CONSTRAINT conversation_messages_pkey PRIMARY KEY (id);
+ALTER TABLE ONLY public.roadmaps ADD CONSTRAINT roadmaps_pkey PRIMARY KEY (id);
+ALTER TABLE ONLY public.roadmaps ADD CONSTRAINT roadmaps_session_id_key UNIQUE (session_id);
+ALTER TABLE ONLY public.role_progressions ADD CONSTRAINT role_progressions_pkey PRIMARY KEY (id);
+ALTER TABLE ONLY public.sessions ADD CONSTRAINT sessions_pkey PRIMARY KEY (id);
+ALTER TABLE ONLY public.skill_trees ADD CONSTRAINT skill_trees_pkey PRIMARY KEY (id);
+ALTER TABLE ONLY public.user_profiles ADD CONSTRAINT user_profiles_pkey PRIMARY KEY (id);
+ALTER TABLE ONLY public.user_profiles ADD CONSTRAINT user_profiles_session_id_key UNIQUE (session_id);
+ALTER TABLE ONLY public.users ADD CONSTRAINT users_pkey PRIMARY KEY (id);
+ALTER TABLE ONLY public.users ADD CONSTRAINT users_anonymous_id_key UNIQUE (anonymous_id);
+ALTER TABLE ONLY public.users ADD CONSTRAINT users_email_key UNIQUE (email);
+ALTER TABLE ONLY public.users ADD CONSTRAINT users_username_key UNIQUE (username);
+
+-- ==========================================
+-- 5. THIẾT LẬP KHÓA NGOẠI (FOREIGN KEYS)
+-- ==========================================
+ALTER TABLE ONLY public.conversation_messages 
+    ADD CONSTRAINT conversation_messages_session_id_fkey FOREIGN KEY (session_id) REFERENCES public.sessions(id) ON DELETE CASCADE;
+
+ALTER TABLE ONLY public.roadmaps 
+    ADD CONSTRAINT roadmaps_session_id_fkey FOREIGN KEY (session_id) REFERENCES public.sessions(id) ON DELETE CASCADE;
+
+ALTER TABLE ONLY public.role_progressions 
+    ADD CONSTRAINT role_progressions_career_track_id_fkey FOREIGN KEY (career_track_id) REFERENCES public.career_tracks(id) ON DELETE CASCADE;
+
+ALTER TABLE ONLY public.sessions 
+    ADD CONSTRAINT sessions_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE SET NULL;
+
+ALTER TABLE ONLY public.skill_trees 
+    ADD CONSTRAINT skill_trees_career_track_id_fkey FOREIGN KEY (career_track_id) REFERENCES public.career_tracks(id) ON DELETE CASCADE;
+
+ALTER TABLE ONLY public.user_profiles 
+    ADD CONSTRAINT user_profiles_session_id_fkey FOREIGN KEY (session_id) REFERENCES public.sessions(id) ON DELETE CASCADE;
+
+-- ==========================================
+-- 6. RESET LẠI CÁC SEQUENCE
+-- ==========================================
+SELECT pg_catalog.setval('public.career_tracks_id_seq', 131, true);
+SELECT pg_catalog.setval('public.conversation_messages_id_seq', 1, false);
+SELECT pg_catalog.setval('public.roadmaps_id_seq', 1, false);
+SELECT pg_catalog.setval('public.role_progressions_id_seq', 439, true);
+SELECT pg_catalog.setval('public.skill_trees_id_seq', 1420, true);
+SELECT pg_catalog.setval('public.user_profiles_id_seq', 1, false);
+SELECT pg_catalog.setval('public.users_id_seq', 1, false);
+
+-- ==========================================
+-- 7. IMPORT DỮ LIỆU (MẪU TỪ PGDUMP BẰNG COPY STDIN)
+-- ==========================================
+-- Bạn có thể chèn dữ liệu bằng cách sử dụng công cụ psql và cung cấp luồng dữ liệu (stdin)
+-- COPY public.career_tracks (id, career_track, track_type, description, avg_salary_min, avg_salary_max, education_route, typical_employers, region_demand, vector_id, created_at, local_demand_signals, timeline_trends, embedding) FROM stdin;
+-- COPY public.users (id, username, email, password_hash, anonymous_id, created_at) FROM stdin;
+-- COPY public.sessions (id, user_id, started_at, ended_at, is_complete) FROM stdin;
+-- COPY public.conversation_messages (id, session_id, role, content, created_at) FROM stdin;
+-- COPY public.user_profiles (id, session_id, trait_scores, confidence_scores, is_ready, updated_at) FROM stdin;
+-- COPY public.roadmaps (id, session_id, user_profile_summary, paths, disclaimer, generated_at) FROM stdin;
+-- COPY public.role_progressions (id, career_track_id, level, title, description, sort_order) FROM stdin;
+-- COPY public.skill_trees (id, career_track_id, category, skill_name) FROM stdin;

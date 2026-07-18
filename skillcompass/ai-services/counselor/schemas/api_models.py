@@ -14,6 +14,11 @@ class MarketExpectations(BaseModel):
     preferred_locations: List[str] = Field(default_factory=list, description="Khu vực làm việc mong muốn")
     expected_salary_min: int = Field(0, description="Mức lương khởi điểm kỳ vọng (VND/tháng)")
     willing_to_relocate: bool = Field(False, description="Sẵn sàng chuyển nơi làm việc không")
+    family_support: Optional[str] = Field(None, description="Định hướng từ gia đình")
+    health_issues: Optional[str] = Field(None, description="Cân nhắc sức khỏe đặc biệt")
+    asked_family: bool = Field(False, description="Đã hỏi về gia đình chưa")
+    asked_health: bool = Field(False, description="Đã hỏi về sức khỏe chưa")
+
 
 class ProfileState(BaseModel):
     context_inferred: str = Field("highschool", description="Bối cảnh nhận diện ngầm")

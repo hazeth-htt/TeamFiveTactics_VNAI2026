@@ -7,5 +7,6 @@ export declare class ChatController {
         message: string;
     }): Promise<{
         reply: string;
+        is_ready: boolean;
     }>;
 }

@@ -93,10 +93,13 @@ def generate_user_prompt(user_profile: dict, matched_careers: list) -> str:
         prompt += f"- {UCEF}: {score}/10\n"
         
     expectations = user_profile.get("market_expectations", {})
-    prompt += f"\n=== KỲ VỌNG THỰC TẾ ===\n"
+    prompt += f"\n=== KỲ VỌNG THỰC TẾ & ĐIỀU KIỆN CÁ NHÂN ===\n"
     prompt += f"- Địa điểm làm việc mong muốn: {', '.join(expectations.get('preferred_locations', []))}\n"
     prompt += f"- Mức lương tối thiểu kỳ vọng: {expectations.get('expected_salary_min', 0):,} VND\n"
-    prompt += f"- Sẵn sàng di chuyển nơi làm việc: {'Có' if expectations.get('willing_to_relocate', False) else 'Không'}\n\n"
+    prompt += f"- Sẵn sàng di chuyển nơi làm việc: {'Có' if expectations.get('willing_to_relocate', False) else 'Không'}\n"
+    prompt += f"- Định hướng từ gia đình: {expectations.get('family_support') or 'Chưa rõ/Được tự do lựa chọn'}\n"
+    prompt += f"- Cân nhắc sức khỏe đặc biệt: {expectations.get('health_issues') or 'Không có vấn đề đặc biệt'}\n\n"
+
     
     prompt += "=== DANH SÁCH CÁC NGÀNH NGHỀ ĐÃ SO KHỚP VÀ LỌC CỨNG (Từ rag_service.py) ===\n"
     for idx, career in enumerate(matched_careers, start=1):

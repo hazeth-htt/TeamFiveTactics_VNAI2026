@@ -7,6 +7,9 @@ class MarketExpectations(BaseModel):
     preferred_locations: List[str] = Field(default_factory=list, description="Danh sách các tỉnh thành muốn làm việc")
     expected_salary_min: int = Field(default=0, ge=0, description="Mức lương mong muốn tối thiểu (VND)")
     willing_to_relocate: bool = Field(default=False, description="Sẵn sàng chuyển vị trí làm việc hay không")
+    family_support: Optional[str] = Field(default=None, description="Định hướng từ gia đình")
+    health_issues: Optional[str] = Field(default=None, description="Cân nhắc sức khỏe đặc biệt")
+
 
 class UserProfile(BaseModel):
     core_scores: Dict[str, float] = Field(..., description="Điểm số 10 năng lực cốt lõi UCEF (thang điểm 1-10)")

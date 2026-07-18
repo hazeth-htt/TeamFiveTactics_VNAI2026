@@ -7,15 +7,70 @@ from roadmap_generator import generate_career_roadmap
 
 def load_test_cases() -> list:
     """
-    Đọc dữ liệu hồ sơ học sinh mẫu từ mock_data_agent2.json.
+    Trả về danh sách hồ sơ học sinh mẫu sử dụng 10 năng lực cốt lõi chuẩn UCEF.
     """
-    path = "mock_data_agent2.json"
-    if not os.path.exists(path):
-        base_dir = os.path.dirname(os.path.abspath(__file__))
-        path = os.path.join(base_dir, path)
-        
-    with open(path, "r", encoding="utf-8") as f:
-        return json.load(f)
+    return [
+        {
+            "note": "Hồ sơ Học sinh 1: Rất giỏi logic, lập trình (IT/Backend)",
+            "is_ready": True,
+            "profile_update": {
+                "core_scores": {
+                    "adaptability_resilience": 7.0,
+                    "analytical_thinking": 8.5,
+                    "continuous_learning": 9.0,
+                    "creativity_innovation": 5.0,
+                    "critical_thinking": 8.0,
+                    "effective_communication": 3.0,
+                    "problem_solving": 8.0,
+                    "responsibility_autonomy": 8.0,
+                    "team_collaboration": 4.0,
+                    "work_ethics_integrity": 8.0
+                },
+                "market_expectations": {
+                    "preferred_locations": ["Hà Nội", "Hồ Chí Minh"],
+                    "expected_salary_min": 15000000,
+                    "willing_to_relocate": True
+                }
+            },
+            "conversation_history": [
+                { "role": "user", "content": "Chào bạn, mình đang muốn tìm hiểu xem mình hợp làm nghề gì." },
+                { "role": "assistant", "content": "Chào bạn! Mình rất vui được đồng hành cùng bạn. Bạn có thể chia sẻ một chút về những việc bạn thích làm hoặc môn học bạn học tốt nhất không?" },
+                { "role": "user", "content": "Mình cực kỳ thích các môn tự nhiên như Toán và Lập trình. Mình thích ngồi giải các bài toán khó và lập trình một mình cả ngày, không thích giao tiếp nhiều. Mình có tự học Python và SQL." },
+                { "role": "assistant", "content": "Đam mê lập trình và khả năng tự học của bạn rất tốt! Bạn muốn làm việc ở khu vực nào và mong muốn mức lương khởi điểm bao nhiêu?" },
+                { "role": "user", "content": "Mình muốn làm ở Hà Nội hoặc HCM. Lương khởi điểm tối thiểu 15 triệu/tháng. Mình sẵn sàng di chuyển." }
+            ]
+        },
+        {
+            "note": "Hồ sơ Học sinh 2: Năng nổ, giao tiếp thuyết phục (Sales B2B/Marketing)",
+            "is_ready": True,
+            "profile_update": {
+                "core_scores": {
+                    "adaptability_resilience": 8.0,
+                    "analytical_thinking": 5.0,
+                    "continuous_learning": 6.0,
+                    "creativity_innovation": 6.0,
+                    "critical_thinking": 6.0,
+                    "effective_communication": 9.0,
+                    "problem_solving": 7.0,
+                    "responsibility_autonomy": 8.0,
+                    "team_collaboration": 8.0,
+                    "work_ethics_integrity": 8.0
+                },
+                "market_expectations": {
+                    "preferred_locations": ["Hồ Chí Minh"],
+                    "expected_salary_min": 10000000,
+                    "willing_to_relocate": False
+                }
+            },
+            "conversation_history": [
+                { "role": "user", "content": "Tư vấn hướng nghiệp giúp mình với." },
+                { "role": "assistant", "content": "Chào bạn! Hãy kể cho mình nghe về sở thích hoặc hoạt động ngoại khóa nào bạn thấy hào hứng nhất nhé." },
+                { "role": "user", "content": "Mình thích giao tiếp thuyết phục người khác, làm việc nhóm năng nổ. Mình làm lớp trưởng và hay làm thuyết trình nhóm." },
+                { "role": "assistant", "content": "Kỹ năng thuyết phục và giao tiếp của bạn rất thích hợp với các mảng Sales/Marketing! Bạn kỳ vọng làm ở đâu và mức thu nhập khởi điểm bao nhiêu?" },
+                { "role": "user", "content": "Mình muốn làm việc ở Hồ Chí Minh, không di chuyển đi tỉnh khác. Lương khởi điểm mong muốn là 10 triệu cộng hoa hồng." }
+            ]
+        }
+    ]
 
 def run_local_test(case_idx: int):
     """

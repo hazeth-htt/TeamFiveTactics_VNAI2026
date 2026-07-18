@@ -57,17 +57,41 @@ export class RoadmapService {
     }));
 
     // 3. Chuẩn bị payload gửi cho Agent 3
-    const preferredLocations = (userProfile as any).preferred_locations || [];
-    const expectedSalaryMin = (userProfile as any).expected_salary_min || 0;
-    const willingToRelocate = (userProfile as any).willing_to_relocate || false;
+    const traitScores = userProfile.trait_scores as Record<string, any> || {};
+    const marketExpectations = traitScores.market_expectations || {};
+    
+    const cleanCoreScores: Record<string, number> = {};
+    const defaultTraits = [
+      'adaptability_resilience',
+      'analytical_thinking',
+      'continuous_learning',
+      'creativity_innovation',
+      'critical_thinking',
+      'effective_communication',
+      'problem_solving',
+      'responsibility_autonomy',
+      'team_collaboration',
+      'work_ethics_integrity',
+    ];
+    for (const trait of defaultTraits) {
+      cleanCoreScores[trait] = typeof traitScores[trait] === 'number' ? traitScores[trait] : 5.0;
+    }
+
+    const preferredLocations = marketExpectations.preferred_locations || [];
+    const expectedSalaryMin = marketExpectations.expected_salary_min || 0;
+    const willingToRelocate = marketExpectations.willing_to_relocate || false;
+    const familySupport = marketExpectations.family_support || null;
+    const healthIssues = marketExpectations.health_issues || null;
 
     const payload = {
       user_profile: {
-        core_scores: userProfile.trait_scores,
+        core_scores: cleanCoreScores,
         market_expectations: {
           preferred_locations: preferredLocations,
           expected_salary_min: expectedSalaryMin,
           willing_to_relocate: willingToRelocate,
+          family_support: familySupport,
+          health_issues: healthIssues,
         },
       },
       conversation_history: conversationHistory,

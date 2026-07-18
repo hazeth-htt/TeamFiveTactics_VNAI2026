@@ -60,25 +60,30 @@ export class ChatService {
       'work_ethics_integrity',
     ];
 
-    const currentCoreScores = userProfile?.trait_scores
-      ? (userProfile.trait_scores as Record<string, number>)
-      : defaultTraits.reduce((acc, trait) => ({ ...acc, [trait]: 5.0 }), {});
+    const currentCoreScores: Record<string, number> = {};
+    const traitScores = userProfile?.trait_scores as Record<string, any> | null;
+    if (traitScores) {
+      for (const trait of defaultTraits) {
+        currentCoreScores[trait] = typeof traitScores[trait] === 'number' ? traitScores[trait] : 5.0;
+      }
+    } else {
+      for (const trait of defaultTraits) {
+        currentCoreScores[trait] = 5.0;
+      }
+    }
 
     const currentConfidenceScores = userProfile?.confidence_scores
       ? (userProfile.confidence_scores as Record<string, number>)
       : defaultTraits.reduce((acc, trait) => ({ ...acc, [trait]: 0.1 }), {});
 
-    const preferredLocations = userProfile && (userProfile as any).preferred_locations
-      ? (userProfile as any).preferred_locations
-      : [];
-
-    const expectedSalaryMin = userProfile && (userProfile as any).expected_salary_min
-      ? (userProfile as any).expected_salary_min
-      : 0;
-
-    const willingToRelocate = userProfile && (userProfile as any).willing_to_relocate
-      ? (userProfile as any).willing_to_relocate
-      : false;
+    const marketExpectations = traitScores?.market_expectations || {};
+    const preferredLocations = marketExpectations.preferred_locations || [];
+    const expectedSalaryMin = marketExpectations.expected_salary_min || 0;
+    const willingToRelocate = marketExpectations.willing_to_relocate || false;
+    const familySupport = marketExpectations.family_support || null;
+    const healthIssues = marketExpectations.health_issues || null;
+    const askedFamily = marketExpectations.asked_family || false;
+    const askedHealth = marketExpectations.asked_health || false;
 
     const currentState = {
       context_inferred: userProfile?.context_inferred || 'highschool',
@@ -88,6 +93,10 @@ export class ChatService {
         preferred_locations: preferredLocations,
         expected_salary_min: expectedSalaryMin,
         willing_to_relocate: willingToRelocate,
+        family_support: familySupport,
+        health_issues: healthIssues,
+        asked_family: askedFamily,
+        asked_health: askedHealth,
       },
       confidence_scores: currentConfidenceScores,
       is_ready: userProfile?.is_ready || false,
@@ -161,7 +170,10 @@ export class ChatService {
         where: { session_id: sessionId },
         update: {
           context_inferred: profileUpdate.context_inferred,
-          trait_scores: profileUpdate.core_scores,
+          trait_scores: {
+            ...profileUpdate.core_scores,
+            market_expectations: profileUpdate.market_expectations,
+          },
           confidence_scores: profileUpdate.confidence_scores,
           is_ready: profileUpdate.is_ready,
           updated_at: new Date(),
@@ -169,7 +181,10 @@ export class ChatService {
         create: {
           session_id: sessionId,
           context_inferred: profileUpdate.context_inferred,
-          trait_scores: profileUpdate.core_scores,
+          trait_scores: {
+            ...profileUpdate.core_scores,
+            market_expectations: profileUpdate.market_expectations,
+          },
           confidence_scores: profileUpdate.confidence_scores,
           is_ready: profileUpdate.is_ready,
         },

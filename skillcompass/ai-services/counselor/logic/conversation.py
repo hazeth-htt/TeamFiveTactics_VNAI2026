@@ -78,6 +78,21 @@ def run_evaluator_llm(
         # Parse JSON output
         parsed_data = json.loads(cleaned)
         
+        # Defensive parsing check to enforce expected schema structure
+        if not isinstance(parsed_data, dict):
+            parsed_data = fallback_response
+        else:
+            if not isinstance(parsed_data.get("core_scores"), dict):
+                parsed_data["core_scores"] = fallback_response["core_scores"]
+            if not isinstance(parsed_data.get("domain_scores"), dict):
+                parsed_data["domain_scores"] = {}
+            if not isinstance(parsed_data.get("market_expectations"), dict):
+                parsed_data["market_expectations"] = fallback_response["market_expectations"]
+            if "is_off_topic" not in parsed_data:
+                parsed_data["is_off_topic"] = False
+            if "warning_signal" not in parsed_data:
+                parsed_data["warning_signal"] = False
+        
         # Ghi log thành công
         save_json_log("evaluator", session_id, {
             "input": input_log,
