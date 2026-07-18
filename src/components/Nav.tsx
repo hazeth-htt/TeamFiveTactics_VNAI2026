@@ -4,7 +4,7 @@ import { View } from '../types';
 function Nav({ onNavigate, onOpenAuth, isLoggedIn, onLogout }: { onNavigate: (v: View) => void, onOpenAuth: () => void, isLoggedIn: boolean, onLogout: () => void }) {
   const [profileOpen, setProfileOpen] = useState(false);
   return (
-    <header style={{ padding: '24px 48px 0', background: '#F5F5F5', position: 'sticky', top: 0, zIndex: 100 }}>
+    <header style={{ padding: '24px 48px 0', background: '#FAFAFA', position: 'sticky', top: 0, zIndex: 100 }}>
       <nav
         style={{
           display: 'flex',

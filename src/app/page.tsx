@@ -25,7 +25,7 @@ export default function SkillCompassApp() {
   };
 
   return (
-    <div style={{ fontFamily: '"Google Sans Flex", sans-serif', background: '#F5F5F5', minHeight: '100vh' }}>
+    <div style={{ fontFamily: '"Google Sans Flex", sans-serif', background: '#FAFAFA', minHeight: '100vh' }}>
       <style>{`
         .nav-link {
           position: relative;

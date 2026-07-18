@@ -25,7 +25,7 @@ function ChatView({ onNavigate }: { onNavigate: (v: View) => void }) {
   };
 
   return (
-    <div style={{ display: 'flex', height: '100vh', fontFamily: '"Google Sans Flex", sans-serif', background: '#F5F5F5' }}>
+    <div style={{ display: 'flex', height: '100vh', fontFamily: '"Google Sans Flex", sans-serif', background: '#FAFAFA' }}>
 
       {/* SIDEBAR */}
       <div style={{ width: '300px', background: '#FFFFFF', borderRight: '1px solid rgba(6,4,14,0.06)', padding: '32px 24px', display: 'flex', flexDirection: 'column' }}>

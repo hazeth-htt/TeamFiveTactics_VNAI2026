@@ -6,7 +6,7 @@ function HomeView({ onNavigate, isLoggedIn, onOpenAuth }: { onNavigate: (v: View
   const handleStart = () => isLoggedIn ? onNavigate('prechat') : onOpenAuth();
 
   return (
-    <div style={{ fontFamily: '"Google Sans Flex", sans-serif', background: '#F5F5F5', minHeight: '100vh', paddingBottom: '64px' }}>
+    <div style={{ fontFamily: '"Google Sans Flex", sans-serif', background: '#FAFAFA', minHeight: '100vh', paddingBottom: '64px' }}>
       {/* HERO */}
       <section style={{ padding: '64px 48px', textAlign: 'center', width: 'fit-content', margin: '0 auto' }}>
         <h1 style={{

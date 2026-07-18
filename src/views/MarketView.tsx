@@ -5,7 +5,7 @@ import CustomSelect from '../components/CustomSelect';
 function MarketView({ onNavigate }: { onNavigate: (v: View) => void }) {
   const [region, setRegion] = useState('Toàn quốc');
   return (
-    <div style={{ minHeight: '100vh', background: '#F5F5F5', padding: '64px 48px', fontFamily: '"Google Sans Flex", sans-serif' }}>
+    <div style={{ minHeight: '100vh', background: '#FAFAFA', padding: '64px 48px', fontFamily: '"Google Sans Flex", sans-serif' }}>
       <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
 
         {/* Section 1: Trending Industries */}
@@ -137,7 +137,7 @@ function MarketView({ onNavigate }: { onNavigate: (v: View) => void }) {
         </section>
 
         {/* Section 3: CTA */}
-        <section style={{ borderRadius: '20px', padding: '64px', textAlign: 'center', background: '#e9f1ffff', border: '1px solid rgba(2,96,255,0.1)', boxShadow: '0 24px 80px rgba(0,0,0,0.04)' }}>
+        <section style={{ borderRadius: '20px', padding: '64px', textAlign: 'center', background: '#f1f9ffff', boxShadow: '20 24px 80px rgba(0,0,0,0.04)' }}>
           <h2 style={{ fontWeight: 500, fontSize: '32px', lineHeight: '36px', color: '#10242F', marginBottom: '16px' }}>
             Phân vân giữa các lựa chọn?
           </h2>

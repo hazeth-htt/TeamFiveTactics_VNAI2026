@@ -54,7 +54,7 @@ function PreChatView({ onNavigate }: { onNavigate: (v: View) => void }) {
   };
 
   return (
-    <div style={{ minHeight: '100vh', background: '#F5F5F5', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '64px 24px', fontFamily: '"Google Sans Flex", sans-serif' }}>
+    <div style={{ minHeight: '100vh', background: '#FAFAFA', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '64px 24px', fontFamily: '"Google Sans Flex", sans-serif' }}>
       <div className="gemini-card" style={{
         borderRadius: '20px', padding: '48px', maxWidth: '640px', width: '100%',
       }}>

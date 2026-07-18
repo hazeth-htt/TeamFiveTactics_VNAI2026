@@ -16,7 +16,7 @@ function ResultsView({ onNavigate }: { onNavigate: (v: View) => void }) {
   ];
 
   return (
-    <div style={{ minHeight: '100vh', background: '#F5F5F5', padding: '64px 48px', fontFamily: '"Google Sans Flex", sans-serif' }}>
+    <div style={{ minHeight: '100vh', background: '#FAFAFA', padding: '64px 48px', fontFamily: '"Google Sans Flex", sans-serif' }}>
       <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
         <h2 style={{ fontWeight: 500, fontSize: '32px', lineHeight: '36px', color: '#06040E', marginBottom: '48px' }}>
           Lộ trình của bạn
