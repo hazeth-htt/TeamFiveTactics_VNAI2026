@@ -12,7 +12,11 @@ export class UserService {
   private readonly prisma: PrismaClient;
 
   constructor() {
-    const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+    const connStr = process.env.DATABASE_URL || '';
+    const pool = new Pool({
+      connectionString: connStr,
+      ssl: connStr.includes('sslmode=') || connStr.includes('neon.tech') ? { rejectUnauthorized: false } : undefined,
+    });
     const adapter = new PrismaPg(pool);
     this.prisma = new PrismaClient({ adapter });
   }
