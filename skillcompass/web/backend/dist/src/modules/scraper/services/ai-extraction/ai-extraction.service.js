@@ -129,25 +129,31 @@ Dữ liệu tin tuyển dụng:
 
 Yêu cầu xuất ra JSON theo đúng cấu trúc sau:
 {
-  "career_track": "Tên ngành nghề chuẩn hóa tiếng Anh hoặc tiếng Việt (Ví dụ: 'Software Engineering', 'Kỹ thuật Ô tô', 'Marketing Digital', 'UI/UX Design', 'F&B/Đầu bếp')",
-  "track_type": "it" hoặc "business" hoặc "art" hoặc "vocational" hoặc "general" (phân loại theo nhóm chuyên môn phù hợp nhất của ngành nghề đó),
-  "description": "Mô tả chi tiết đặc thù công việc của ngành này (tiếng Việt)",
-  "avg_salary_min": Mức lương tối thiểu trung bình (số nguyên VND/tháng, ví dụ: 8000000),
-  "avg_salary_max": Mức lương tối đa trung bình (số nguyên VND/tháng, ví dụ: 25000000),
-  "education_route": "Lộ trình đào tạo phổ biến ngoài thực tế (Ví dụ: 'Đại học Bách Khoa 4 năm', 'Cao đẳng nghề 2 năm')",
+  "career_track": "Tên ngành nghề hoặc vị trí công việc cụ thể được trích xuất và chuẩn hóa từ tin tuyển dụng (Ví dụ: 'Lập trình viên NodeJS', 'Kế toán tổng hợp', 'Kỹ thuật viên sửa chữa Ô tô', 'Nhân viên Xuất nhập khẩu')",
+  "track_type": "Lĩnh vực nghề nghiệp lớn (Industry/Category) mà ngành nghề đó thuộc về (Ví dụ: 'Công nghệ thông tin', 'Tài chính - Kế toán', 'Cơ khí & Tự động hóa', 'Xuất nhập khẩu & Logistics', 'Y tế & Chăm sóc sức khỏe', 'Nghệ thuật & Sáng tạo')",
+  "description": "Đoạn văn bản mô tả ngắn gọn (khoảng 2-3 câu) định nghĩa về đặc thù công việc của ngành này, tối ưu bằng ngôn ngữ dễ hiểu dành cho học sinh THPT.",
+  "avg_salary_min": Mức lương trung bình tối thiểu trích xuất từ dữ liệu thị trường thực tế (Đơn vị: VND/tháng, ví dụ: 10000000). Nếu tin tuyển dụng ghi 'Thỏa thuận' hoặc không rõ, giá trị lưu là null.,
+  "avg_salary_max": Mức lương trung bình tối đa trích xuất từ dữ liệu thị trường thực tế (Đơn vị: VND/tháng, ví dụ: 25000000). Nếu không rõ, giá trị lưu là null.,
+  "education_route": "Gợi ý lộ trình hoặc hệ đào tạo phổ biến tương ứng ngoài thực tế do AI đúc kết từ yêu cầu bằng cấp trong các bài tuyển dụng (Ví dụ: 'Hệ Đại học chuyên ngành CNTT hoặc ATTT từ 4-5 năm', 'Hệ Cao đẳng hoặc trường nghề chuyên ngành Kỹ thuật ô tô từ 2-3 năm'). Nếu không rõ, lưu là null.",
   "typical_employers": ["Tên công ty tuyển dụng này và các doanh nghiệp lớn khác cùng ngành"],
   "region_demand": {
-    "HN": "high" hoặc "medium" hoặc "low",
-    "HCM": "high" hoặc "medium" hoặc "low",
-    "DN": "high" hoặc "medium" hoặc "low"
+    "HN": "high" hoặc "medium" hoặc "low" hoặc "none",
+    "HCM": "high" hoặc "medium" hoặc "low" hoặc "none",
+    "DN": "high" hoặc "medium" hoặc "low" hoặc "none"
   },
   "local_demand_signals": {
-    "HCM": { "hot_skills": ["kỹ năng cụ thể hot"], "growth_rate": "phần trăm tăng trưởng" },
-    "HN": { "shortage": ["kỹ năng đang thiếu hụt"] }
+    "HCM": {
+      "hot_skills": ["danh sách kỹ năng/công cụ hot ở đây"],
+      "growth_rate": "phần trăm tăng trưởng (ví dụ: '15%')"
+    },
+    "HN": {
+      "hot_skills": ["danh sách kỹ năng/công cụ hot ở đây"],
+      "growth_rate": "phần trăm tăng trưởng (ví dụ: '12%')"
+    }
   },
   "timeline_trends": {
-    "2025": { "q1": "stable", "q2": "rising" },
-    "2026": { "status": "booming" }
+    "2025": "stable" hoặc "rising" hoặc "falling",
+    "2026": "rising" hoặc "stable" hoặc "falling"
   },
   "skills": {
     "fundamentals": ["Kỹ năng nền tảng 1", "Kỹ năng nền tảng 2"],
@@ -195,9 +201,9 @@ Yêu cầu xuất ra JSON theo đúng cấu trúc sau:
                     data: {
                         track_type: data.track_type || careerTrack.track_type,
                         description: data.description || careerTrack.description,
-                        avg_salary_min: data.avg_salary_min || careerTrack.avg_salary_min,
-                        avg_salary_max: data.avg_salary_max || careerTrack.avg_salary_max,
-                        education_route: data.education_route || careerTrack.education_route,
+                        avg_salary_min: data.avg_salary_min !== undefined ? data.avg_salary_min : careerTrack.avg_salary_min,
+                        avg_salary_max: data.avg_salary_max !== undefined ? data.avg_salary_max : careerTrack.avg_salary_max,
+                        education_route: data.education_route !== undefined ? data.education_route : careerTrack.education_route,
                         typical_employers: employers,
                         region_demand: data.region_demand || careerTrack.region_demand,
                         local_demand_signals: data.local_demand_signals || careerTrack.local_demand_signals,
@@ -211,11 +217,11 @@ Yêu cầu xuất ra JSON theo đúng cấu trúc sau:
                 careerTrack = await this.prisma.careerTrack.create({
                     data: {
                         career_track: data.career_track,
-                        track_type: data.track_type || 'general',
+                        track_type: data.track_type || 'Chưa xác định',
                         description: data.description,
-                        avg_salary_min: data.avg_salary_min || 10000000,
-                        avg_salary_max: data.avg_salary_max || 25000000,
-                        education_route: data.education_route,
+                        avg_salary_min: data.avg_salary_min !== undefined ? data.avg_salary_min : null,
+                        avg_salary_max: data.avg_salary_max !== undefined ? data.avg_salary_max : null,
+                        education_route: data.education_route !== undefined ? data.education_route : null,
                         typical_employers: data.typical_employers || [],
                         region_demand: data.region_demand || {},
                         local_demand_signals: data.local_demand_signals || {},
@@ -310,29 +316,38 @@ Yêu cầu xuất ra JSON theo đúng cấu trúc sau:
     generateMockStructuredData(rawJob, category) {
         const title = rawJob.title || 'Vị trí mới';
         const company = rawJob.hiringOrganization?.name || 'Công ty ẩn danh';
-        let careerTrack = 'General Career';
-        let trackType = category;
+        let careerTrack = 'Ngành nghề tổng hợp';
+        let trackType = 'Lĩnh vực khác';
         if (category === 'it') {
-            careerTrack = 'Software Engineering';
+            careerTrack = title.toLowerCase().includes('node') ? 'Lập trình viên NodeJS' : 'Lập trình viên Software';
+            trackType = 'Công nghệ thông tin';
         }
         else if (category === 'business') {
-            careerTrack = 'Marketing Digital';
+            careerTrack = (title.toLowerCase().includes('kế toán') || title.toLowerCase().includes('ke toan'))
+                ? 'Kế toán tổng hợp'
+                : 'Nhân viên Kinh doanh';
+            trackType = 'Tài chính - Kế toán';
         }
         else if (category === 'art') {
-            careerTrack = 'UI/UX Design';
+            careerTrack = 'Nhà thiết kế Đồ họa (Designer)';
+            trackType = 'Nghệ thuật & Sáng tạo';
         }
         else if (category === 'vocational') {
             if (title.toLowerCase().includes('ô tô') || title.toLowerCase().includes('o to')) {
-                careerTrack = 'Kỹ thuật Ô tô';
+                careerTrack = 'Kỹ thuật viên sửa chữa Ô tô';
+                trackType = 'Cơ khí & Tự động hóa';
             }
             else if (title.toLowerCase().includes('điện') || title.toLowerCase().includes('plc')) {
-                careerTrack = 'Kỹ thuật Tự động hóa/PLC';
+                careerTrack = 'Kỹ thuật viên Tự động hóa';
+                trackType = 'Cơ khí & Tự động hóa';
             }
             else if (title.toLowerCase().includes('bếp') || title.toLowerCase().includes('nấu')) {
-                careerTrack = 'Đầu bếp / Quản lý F&B';
+                careerTrack = 'Đầu bếp chuyên nghiệp';
+                trackType = 'Ẩm thực & Nhà hàng';
             }
             else {
-                careerTrack = 'Kỹ thuật Ứng dụng';
+                careerTrack = 'Kỹ thuật viên Lắp ráp';
+                trackType = 'Cơ khí & Tự động hóa';
             }
         }
         const defaultSkills = {
@@ -369,11 +384,11 @@ Yêu cầu xuất ra JSON theo đúng cấu trúc sau:
             description: `Ngành nghề liên quan đến lĩnh vực ${careerTrack}, thực hiện các công việc chuyên môn từ tuyển dụng thực tế.`,
             avg_salary_min: 8000000,
             avg_salary_max: 20000000,
-            education_route: trackType === 'vocational' ? 'Cao đẳng nghề hoặc chứng chỉ thực hành (1.5 - 2 năm)' : 'Đại học chuyên ngành liên quan (4 năm)',
+            education_route: category === 'vocational' ? 'Cao đẳng nghề hoặc chứng chỉ thực hành (2-3 năm)' : 'Đại học chuyên ngành liên quan (4-5 năm)',
             typical_employers: [company],
             region_demand: { HN: 'high', HCM: 'high', DN: 'medium' },
             local_demand_signals: { HCM: { hot_skills: selectedSkills.core_technologies, growth_rate: '12%' } },
-            timeline_trends: { '2025': { q1: 'stable' }, '2026': { status: 'rising' } },
+            timeline_trends: { '2025': 'stable', '2026': 'rising' },
             skills: selectedSkills,
             role_progressions: [
                 { level: 'Entry', title: `Junior ${careerTrack}`, description: 'Thực hiện các công việc cơ bản dưới sự chỉ dẫn.', sort_order: 0 },

@@ -57,7 +57,7 @@ Hệ thống sử dụng 5 file JSON chuẩn làm "thước đo" chung cho toàn
   "field": "IT",
   "location_data": {
     "province": "Hà Nội",
-    "salary_range": [15000000, 30000000],
+    "salary_range": [15000000, 30000000],1
     "trend_score": 0.85, 
     "risk_of_unemployment": "Low",
     "market_insight": "Nhu cầu cao tại HN nhưng đòi hỏi nhiều kinh nghiệm hệ thống lớn."
