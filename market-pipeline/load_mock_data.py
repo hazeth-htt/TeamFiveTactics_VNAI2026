@@ -15,7 +15,7 @@ from config import get_pg_connection
 
 INSERT_SQL = """
 INSERT INTO public.career_tracks (
-    career_track, track_type, description,
+    career_track, field_id, description,
     avg_salary_min, avg_salary_max, education_route,
     typical_employers, region_demand, local_demand_signals, timeline_trends
 )
@@ -27,7 +27,7 @@ CREATE_TABLE_SQL = """
 CREATE TABLE IF NOT EXISTS public.career_tracks (
     id                   SERIAL PRIMARY KEY,
     career_track         VARCHAR(150) NOT NULL,
-    track_type           VARCHAR(50),
+    field_id             VARCHAR(50),   -- Crawler tự set: f_it, f_medical, f_law, f_finance...
     description          TEXT,
     avg_salary_min       INTEGER,
     avg_salary_max       INTEGER,
@@ -42,13 +42,7 @@ CREATE TABLE IF NOT EXISTS public.career_tracks (
 );
 """
 
-FIELD_TO_TRACK_TYPE = {
-    "f_it":         "academic",
-    "f_business":   "academic",
-    "f_art":        "academic",
-    "f_vocational": "vocational",
-    "f_medical":    "academic",
-}
+# Không còn cần mapping cứng — field_id lưu thẳng vào DB
 
 
 def load(input_path: str, dry_run: bool):
@@ -67,12 +61,11 @@ def load(input_path: str, dry_run: bool):
     for i, entry in enumerate(data):
         db = entry.get("db_data", entry)  # Hỗ trợ cả format cũ và mới
         career_track  = db.get("career_track", "Unknown")
-        field_id      = db.get("field_id", "f_it")
-        track_type    = FIELD_TO_TRACK_TYPE.get(field_id, "academic")
+        field_id      = db.get("field_id", "f_other")  # Crawler tự set, không hardcode
 
         row = (
             career_track,
-            track_type,
+            field_id,
             db.get("description", ""),
             db.get("avg_salary_min", 0),
             db.get("avg_salary_max", 0),
