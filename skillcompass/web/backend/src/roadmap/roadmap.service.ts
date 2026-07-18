@@ -8,7 +8,7 @@ import axios from 'axios';
 export class RoadmapService {
   private readonly logger = new Logger(RoadmapService.name);
   private readonly prisma: PrismaClient;
-  private readonly roadmapUrl = 'http://localhost:8003/generate-roadmap';
+  private readonly roadmapUrl = process.env.ROADMAP_SERVICE_URL || 'http://localhost:8003/generate-roadmap';
 
   constructor() {
     const pool = new Pool({ connectionString: process.env.DATABASE_URL });

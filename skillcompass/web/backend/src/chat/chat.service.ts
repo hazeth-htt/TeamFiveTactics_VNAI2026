@@ -8,7 +8,7 @@ import axios from 'axios';
 export class ChatService {
   private readonly logger = new Logger(ChatService.name);
   private readonly prisma: PrismaClient;
-  private readonly counselorUrl = 'http://localhost:8002/chat';
+  private readonly counselorUrl = process.env.COUNSELOR_SERVICE_URL || 'http://localhost:8002/chat';
 
   constructor() {
     const pool = new Pool({ connectionString: process.env.DATABASE_URL });
