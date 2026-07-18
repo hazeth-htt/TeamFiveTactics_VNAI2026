@@ -3,38 +3,54 @@ __pycache__/
 *.py[cod]
 *.pyo
 *.pyd
-
-# Virtual environments
 venv/
 .venv/
 env/
 
-# Environment variables (sensitive)
+# Environment variables
 .env
+.env*
+!.env.example
 
-# IDE
+# IDE & OS
 .vscode/
 .idea/
-
-# OS
 .DS_Store
 Thumbs.db
 
 # Logs
 *.log
 logs/
-
-# Build artifacts
-dist/
-build/
-*.egg-info/
-
-# Node.js
-node_modules/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+.pnpm-debug.log*
 
-# NestJS
+# Node.js / NestJS / Next.js dependency & build
+node_modules/
+/node_modules
+/.pnp
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
+
 /dist
+dist/
+build/
+/build
 /coverage
+*.egg-info/
+
+# Next.js & Vercel
+/.next/
+/out/
+.vercel
+*.tsbuildinfo
+next-env.d.ts
+
+# Misc
+*.pem
+
