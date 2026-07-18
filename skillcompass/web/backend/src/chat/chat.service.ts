@@ -8,6 +8,13 @@ import axios from 'axios';
 export class ChatService {
   private readonly logger = new Logger(ChatService.name);
   private readonly prisma: PrismaClient;
+
+  constructor() {
+    const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+    const adapter = new PrismaPg(pool);
+    this.prisma = new PrismaClient({ adapter });
+  }
+
   private getCounselorUrl(): string {
     const raw = process.env.COUNSELOR_SERVICE_URL || 'http://localhost:8002/chat';
     return raw.endsWith('/chat') ? raw : `${raw.replace(/\/+$/, '')}/chat`;
