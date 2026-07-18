@@ -17,25 +17,49 @@ const generateUUID = () => {
 
 const getSessionId = () => {
   if (typeof window === 'undefined') return '00000000-0000-0000-0000-000000000000';
-  let sid = sessionStorage.getItem('skillcompass_session_id');
+  // localStorage để lưu persistent qua các lần đóng/mở tab
+  let sid = localStorage.getItem('skillcompass_session_id');
   const isValidUuid = sid && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(sid);
   if (!isValidUuid) {
     sid = generateUUID();
+    localStorage.setItem('skillcompass_session_id', sid!);
+    // Đồng bộ sang sessionStorage để các view khác dùng
+    sessionStorage.setItem('skillcompass_session_id', sid!);
+  } else {
     sessionStorage.setItem('skillcompass_session_id', sid!);
   }
   return sid!;
 };
 
+const INITIAL_MSG = [{ role: 'ai' as const, text: 'Xin chào! Hãy kể cho tôi nghe về những công việc hoặc sở thích khiến bạn say mê đến quên cả thời gian nhé.', isFinal: false }];
+
 function ChatView({ onNavigate }: { onNavigate: (v: View) => void }) {
-  const [msgs, setMsgs] = useState<Array<{ role: 'ai' | 'user'; text: string; isFinal?: boolean }>>([
-    { role: 'ai', text: 'Xin chào! Hãy kể cho tôi nghe về những công việc hoặc sở thích khiến bạn say mê đến quên cả thời gian nhé.', isFinal: false }
-  ]);
+  const [msgs, setMsgs] = useState<Array<{ role: 'ai' | 'user'; text: string; isFinal?: boolean }>>(INITIAL_MSG);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    // Ensure session ID is initialized
-    getSessionId();
+    const sid = getSessionId();
+    // Tải lịch sử hội thoại từ DB khi mở lại
+    fetch(`${BACKEND_URL}/api/chat/history/${sid}`)
+      .then(r => r.json())
+      .then(data => {
+        if (data.messages && data.messages.length > 0) {
+          const restored = data.messages.map((m: any) => ({
+            role: m.role === 'assistant' ? 'ai' as const : 'user' as const,
+            text: m.content,
+            isFinal: false,
+          }));
+          // Đánh dấu tin nhắn cuối của AI là isFinal nếu is_ready
+          if (data.is_ready && restored.length > 0) {
+            const lastAiIdx = [...restored].map((x,i) => ({x,i})).filter(({x}) => x.role === 'ai').pop();
+            if (lastAiIdx) restored[lastAiIdx.i].isFinal = true;
+          }
+          setMsgs([...INITIAL_MSG, ...restored]);
+        }
+      })
+      .catch(() => { /* Bỏ qua nếu không tải được lịch sử */ });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const send = async (e: React.FormEvent) => {

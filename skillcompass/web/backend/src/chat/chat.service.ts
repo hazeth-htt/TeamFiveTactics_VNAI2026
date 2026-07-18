@@ -24,6 +24,24 @@ export class ChatService {
     return raw.endsWith('/chat') ? raw : `${raw.replace(/\/+$/, '')}/chat`;
   }
 
+  async getHistory(sessionId: string) {
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (!sessionId || !uuidRegex.test(sessionId)) {
+      return { messages: [], is_ready: false };
+    }
+    const messages = await this.prisma.conversationMessage.findMany({
+      where: { session_id: sessionId },
+      orderBy: { created_at: 'asc' },
+    });
+    const profile = await this.prisma.userProfile.findUnique({
+      where: { session_id: sessionId },
+    });
+    return {
+      messages: messages.map((m) => ({ role: m.role, content: m.content })),
+      is_ready: profile?.is_ready ?? false,
+    };
+  }
+
   async handleMessage(sessionId: string, message: string): Promise<{ reply: string; is_ready: boolean }> {
     try {
       const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
