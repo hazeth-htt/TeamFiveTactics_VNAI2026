@@ -1,33 +1,39 @@
-# HƯỚNG DẪN TRIỂN KHAI TOÀN DIỆN HỆ THỐNG SKILLCOMPASS
+# HƯỚNG DẪN TRIỂN KHAI TOÀN DIỆN DỰ ÁN SKILLCOMPASS LÊN CLOUD
 
 Tài liệu này hướng dẫn chi tiết cách cài đặt, cấu hình và khởi chạy hoàn chỉnh hệ thống **SkillCompass** (bao gồm NestJS Backend, Agent 1 Market Data Pipeline, Agent 2 Counselor, và Agent 3 Roadmap Service).
 
 **Công nghệ sử dụng:**
-- **DB**: PostgreSQL (Neon Cloud / Local) & Pinecone (Vector Database)
-- **BE**: NestJS (Render / Docker / Local) & Python FastAPI (Render / VPS)
+- **Cơ sở dữ liệu**: Neon Cloud (PostgreSQL) & Pinecone (Vector Database)
+- **Web Backend (NestJS)**: Deploy lên **Render** (Node Runtime)
+- **AI Services (Python FastAPI)**: Deploy lên **Render** (Python Runtime)
 
 ---
 
-## BƯỚC 1: KHỞI TẠO VÀ CẤU HÌNH DATABASE (POSTGRESQL & PINECONE)
+## BƯỚC 1: KHỞI TẠO VÀ CẤU HÌNH DATABASE TRÊN NEON CLOUD & PINECONE
 
 ### 1. Hành động cụ thể & Chi tiết nhỏ nhất
-- **PostgreSQL**: 
-  - Tạo cơ sở dữ liệu tên là `SKILLCOMPASS` trong PostgreSQL local hoặc Neon Cloud.
-  - Lưu lại chuỗi kết nối (Connection String) có dạng: `postgresql://postgres:123456@localhost:5432/SKILLCOMPASS?schema=public`
+- **Neon Cloud (PostgreSQL)**:
+  - Truy cập Neon Console, khởi tạo dự án PostgreSQL. Copy chuỗi Connection String dạng:
+    `postgresql://neondb_owner:npg_xxx@ep-xxx.ap-southeast-1.aws.neon.tech/neondb?sslmode=require`
+  - Nhập dữ liệu thô ban đầu: Vào SQL Editor của Neon, chạy tập lệnh SQL để tạo các bảng `career_tracks`, `role_progressions`, `skill_trees` và nạp dữ liệu. (Hoặc chạy `npx prisma db push` từ máy local trỏ đến database của Neon).
+  - **Lưu ý sống còn**: Chạy reset sequence ID cho các bảng có SERIAL PRIMARY KEY để tránh trùng lặp khóa chính khi tạo mới:
+    ```sql
+    SELECT pg_catalog.setval('public.career_tracks_id_seq', (SELECT MAX(id) FROM public.career_tracks), true);
+    SELECT pg_catalog.setval('public.role_progressions_id_seq', (SELECT MAX(id) FROM public.role_progressions), true);
+    SELECT pg_catalog.setval('public.skill_trees_id_seq', (SELECT MAX(id) FROM public.skill_trees), true);
+    ```
 - **Pinecone**:
-  - Đăng nhập vào Pinecone Console, khởi tạo một index tên là `skillcompass-careers`.
-  - **Chi tiết bắt buộc**: Cấu hình số chiều của vector (Dimension) là **`10`** và độ đo khoảng cách (Metric) là **`cosine`** (vì hệ thống dùng vector 10 chiều tương ứng 10 năng lực chuẩn UCEF).
-  - Copy **API Key** và tên index lưu vào file `.env` của `market-pipeline` và `roadmap`.
+  - Khởi tạo index `skillcompass-careers` trên Pinecone với dimension **10** (10 năng lực UCEF) và metric **cosine**.
+  - Lưu lại `PINECONE_API_KEY` và `PINECONE_INDEX_NAME`.
 
 ### 2. Điểm phân vân / Lựa chọn
-- **Khi tạo bảng bằng Prisma**:
-  - *Phân vân*: Nên tạo các cột dữ liệu năng lực rời rạc hay lưu dưới dạng `Json`?
-  - *Quyết định chuẩn*: Lưu dưới dạng `Json` (như cột `trait_scores` trong bảng `user_profiles`) để tăng tính cơ động, cho phép mở rộng hoặc thu hẹp số lượng tiêu chí đánh giá trong tương lai mà không cần thực hiện `prisma migrate` để sửa schema DB.
+- *Phân vân*: Có nên dùng tính năng `synchronize: true` trong NestJS để tự đồng bộ bảng lên Neon?
+- *Quyết định chuẩn*: **Không dùng synchronize: true**. Chúng ta dùng `npx prisma db push` để tạo cấu trúc bảng từ schema.prisma chuẩn, tránh việc ghi đè cấu trúc làm mất sạch dữ liệu thực tế trên Cloud.
 
 ### 3. Lỗi gặp phải tại bước này
-- **Lỗi**: Khi chạy truy vấn lấy chi tiết ngành nghề từ PostgreSQL, hệ thống báo lỗi không tìm thấy bảng `career_tracks` hoặc bị lỗi phân tách khóa ngoại.
-  - *Nguyên nhân*: Chưa đồng bộ schema của Prisma hoặc chưa nạp dữ liệu thô ban đầu vào cơ sở dữ liệu PostgreSQL.
-  - *Cách sửa chi tiết*: Chạy lệnh `npx prisma db push` trong thư mục `web/backend` để tạo cấu trúc bảng, sau đó chạy lệnh `python load_mock_data.py` trong thư mục `market-pipeline` để nạp dữ liệu thô ban đầu.
+- *Lỗi*: Khi chạy import file backup SQL lên Neon SQL Editor bị lỗi `unsupported command: \restrict` hoặc lỗi `COPY ... FROM stdin`.
+- *Nguyên nhân*: Các câu lệnh pgAdmin tự động tạo ra bằng cú pháp terminal không tương thích với Web SQL Editor của Neon.
+- *Cách sửa chi tiết*: Loại bỏ các dòng lệnh hệ thống bắt đầu bằng dấu gạch chéo ngược (`\`) và chuyển đổi cú pháp `COPY` thô sang định dạng `INSERT INTO` tiêu chuẩn.
 
 ---
 
@@ -45,105 +51,88 @@ Vì đây là đồ án làm chung với nhóm, bạn không nên sửa đổi t
 - **Lỗi**: Remote `origin` vẫn trỏ về dự án chung của nhóm, khi push code sẽ ghi đè lên nhánh chính và làm hỏng code của nhóm.
   - *Cách sửa chi tiết*: Chạy lệnh đổi URL remote `origin` trỏ sang repo cá nhân đã fork:
     ```bash
-    git remote set-url origin https://github.com/hazeth-htt/TeamFiveTactics_VNAI2026
+    git remote set-url origin https://github.com/TênTàiKhoảnCủaBạn/TeamFiveTactics_VNAI2026
     ```
     Kiểm tra lại bằng `git remote -v` để đảm bảo an toàn.
 
 ---
 
-## BƯỚC 3: CẤU HÌNH BACKEND (NESTJS) & PRISMA
+## BƯỚC 3: CẤU HÌNH & TRIỂN KHAI BACKEND NESTJS LÊN RENDER
 
 ### 1. Hành động cụ thể & Chi tiết nhỏ nhất
-- **Hành động**: Đẩy code backend lên GitHub, tạo một dự án NestJS trên máy chủ ảo (ví dụ: Render hoặc VPS).
-- **Cấu hình**: 
-  - Khai báo biến môi trường `DATABASE_URL` trong file `.env` (hoặc cấu hình Environment Variables trên Render) bằng chuỗi kết nối PostgreSQL ở Bước 1.
-  - Chạy lệnh cài đặt và tạo Prisma client:
-    ```bash
-    npm install
-    npx prisma generate
-    ```
+- Lên Render, tạo một **Web Service** mới, liên kết với repo GitHub cá nhân của bạn.
+- Cấu hình các mục quan trọng:
+  - **Root Directory**: `skillcompass/web/backend`
+  - **Runtime**: Chọn **Node** (để build nhanh hơn và nhẹ RAM hơn Docker trên gói Free).
+  - **Build Command**: `npm install && npm run build`
+  - **Start Command**: `npm run start:prod`
+- Thêm biến môi trường (Environment Variables):
+  - `DATABASE_URL`: URL connection string của Neon Cloud (đã lấy ở Bước 1).
+  - `COUNSELOR_SERVICE_URL`: URL công khai của Counselor Python Service sau khi deploy (Ví dụ: `https://skillcompass-counselor.onrender.com`).
+  - `ROADMAP_SERVICE_URL`: URL công khai của Roadmap Python Service sau khi deploy (Ví dụ: `https://skillcompass-roadmap.onrender.com`).
 
 ### 2. Lưu ý cấu hình & Vận hành Backend
-- **Mở khóa CORS**: Trong file `backend/src/main.ts`, bắt buộc phải bật CORS bằng câu lệnh:
-  ```typescript
-  app.enableCors();
-  ```
-  trước khi gọi `app.listen()`. Nếu thiếu dòng này, trình duyệt của học sinh sẽ chặn toàn bộ các cuộc gọi API từ frontend.
-- **Tắt đồng bộ cấu trúc tự động khi chạy Production**: Đảm bảo sử dụng Prisma migrations hoặc `prisma db push` thủ công thay vì để ứng dụng tự động kiểm tra và ghi đè schema lúc khởi chạy để tránh mất dữ liệu.
+- **Mở khóa CORS**: Trong file `web/backend/src/main.ts`, bắt buộc gọi `app.enableCors()` trước `app.listen()` để không bị chặn các cuộc gọi từ client ngoài.
+- **Prisma Client**: Để chạy được trên Render, đảm bảo đã chạy `npx prisma generate` trong bước build.
 
 ---
 
-## BƯỚC 4: TRIỂN KHAI CÁC PYTHON AI SERVICES
+## BƯỚC 4: TRIỂN KHAI CÁC DỊCH VỤ PYTHON AI SERVICES LÊN RENDER
 
-Hệ thống có 3 cấu phần dịch vụ Python cần được thiết lập và khởi chạy.
+Hệ thống có hai microservices chạy độc lập bằng Python FastAPI: **Counselor (Port 8002)** và **Roadmap (Port 8003)**.
 
-### 4.1. Nạp và Embed dữ liệu tuyển dụng (Agent 1)
-- **Hành động**: Di chuyển vào thư mục `ai-services/market-pipeline/`, thiết lập môi trường ảo và cài đặt thư viện:
-  ```bash
-  python -m venv venv
-  venv\Scripts\activate  # Windows
-  pip install -r requirements.txt
-  ```
-- **Chạy Script**:
-  - Nạp dữ liệu thô vào PostgreSQL: `python load_mock_data.py`
-  - Chạy pipeline trích xuất năng lực bằng LLM và tải vector lên Pinecone: `python agent1.py`
+### 4.1. Triển khai Counselor Service (Agent 2)
+- Tạo một **Web Service** mới trên Render trỏ đến cùng repo GitHub.
+- Cấu hình:
+  - **Root Directory**: `skillcompass/ai-services/counselor`
+  - **Runtime**: Chọn **Python**.
+  - **Start Command**: `uvicorn main:app --host 0.0.0.0 --port $PORT` (Render tự động cấp cổng ngẫu nhiên qua biến `$PORT`).
+- Biến môi trường:
+  - `LLM_API_KEY`: API Key của dịch vụ LLM (FPT Cloud / DeepSeek).
+  - `LLM_BASE_URL`: URL của LLM API.
+  - `LLM_MODEL`: Tên model LLM sử dụng (ví dụ: `DeepSeek-V4-Flash`).
 
-### 4.2. Khởi chạy Counselor Service (Agent 2 - Cổng 8002)
-- **Hành động**: Di chuyển vào `ai-services/counselor/`, cài đặt thư viện và khởi chạy FastAPI server:
-  ```bash
-  python main.py
-  ```
-  *Dịch vụ sẽ khởi động trên cổng 8002.*
-
-### 4.3. Khởi chạy Roadmap Service (Agent 3 - Cổng 8003)
-- **Hành động**: Di chuyển vào `ai-services/roadmap/`, cấu hình đầy đủ các biến môi trường PostgreSQL và Pinecone giống hệt Agent 1, sau đó khởi chạy FastAPI server:
-  ```bash
-  python main.py
-  ```
-  *Dịch vụ sẽ khởi động trên cổng 8003.*
+### 4.2. Triển khai Roadmap Service (Agent 3)
+- Tạo tiếp một **Web Service** khác trên Render.
+- Cấu hình:
+  - **Root Directory**: `skillcompass/ai-services/roadmap`
+  - **Runtime**: Chọn **Python**.
+  - **Start Command**: `uvicorn main:app --host 0.0.0.0 --port $PORT`
+- Biến môi trường (Ngoài LLM, cần cấu hình thêm thông tin DB PostgreSQL của Neon và Vector DB Pinecone):
+  - `LLM_API_KEY`, `LLM_BASE_URL`, `LLM_MODEL` (giống Counselor).
+  - `POSTGRES_HOST`, `POSTGRES_PORT`, `POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD` (Lấy từ connection string của Neon).
+  - `PINECONE_API_KEY`, `PINECONE_INDEX_NAME` (Lấy từ Pinecone đã cấu hình ở Bước 1).
 
 ---
 
-## BƯỚC 5: KHẮC PHỤC LỖI HARDCODE ENDPOINTS (LOCAL PORTS)
+## BƯỚC 5: KHẮC PHỤC LỖI HARDCODE ENDPOINTS
 
 ### 1. Hiện tượng lỗi
-Mặc dù bạn đã deploy thành công NestJS Backend và các Python service lên đám mây, nhưng khi nhấn Bắt đầu chat hoặc Sinh lộ trình, trình duyệt báo lỗi đỏ lòm:
-```
-Failed to load resource: net::ERR_CONNECTION_REFUSED localhost:8002/chat
-```
+- Mặc dù Vercel/Render báo deploy thành công, nhưng khi chạy thực tế từ Frontend, ứng dụng bị đơ hoặc lỗi kết nối, Console báo lỗi đỏ:
+  `Failed to load resource: net::ERR_CONNECTION_REFUSED localhost:8002/chat` hoặc `localhost:8003/generate-roadmap`.
 
-### 2. Nguyên nhân & Cách tìm lỗi nhanh
-- **Nguyên nhân**: Trong mã nguồn, các địa chỉ gọi dịch vụ AI đang bị viết chết (hardcode) dạng `http://localhost:8002` hoặc `http://localhost:8003`. Khi đưa lên deploy, hệ thống không thể tìm thấy các cổng này trên máy client của người dùng.
-- **Cách tìm thông minh**:
-  - Nhấn `Ctrl + Shift + F` trong VS Code để tìm kiếm chuỗi `localhost:8002` hoặc `localhost:8003`.
-  - Mở phần **Files to exclude** và nhập `**/node_modules, **/dist, **/.venv` để tránh quét vào các thư mục thư viện làm đơ máy.
-
-### 3. Sửa code chi tiết
-- Đưa các đường dẫn API của dịch vụ AI vào biến môi trường `.env` hoặc file cấu hình chung của NestJS:
-  ```ini
-  # NestJS .env
-  COUNSELOR_SERVICE_URL=https://your-counselor-service.onrender.com
-  ROADMAP_SERVICE_URL=https://your-roadmap-service.onrender.com
-  ```
-- Thay thế đoạn code gọi axios trong service bằng biến môi trường:
-  ```typescript
-  // Thay thế http://localhost:8002/chat bằng:
-  const url = process.env.COUNSELOR_SERVICE_URL || 'http://localhost:8002/chat';
-  ```
+### 2. Nguyên nhân & Quy trình sửa lỗi
+- **Nguyên nhân**: Trong mã nguồn NestJS Backend, địa chỉ API gọi sang Counselor và Roadmap đang bị viết cứng dạng `http://localhost:8002/chat` và `http://localhost:8003/generate-roadmap`.
+- **Cách sửa chi tiết**:
+  - Trong `chat.service.ts`, thay đổi:
+    ```typescript
+    private readonly counselorUrl = process.env.COUNSELOR_SERVICE_URL || 'http://localhost:8002/chat';
+    ```
+  - Trong `roadmap.service.ts`, thay đổi:
+    ```typescript
+    private readonly roadmapUrl = process.env.ROADMAP_SERVICE_URL || 'http://localhost:8003/generate-roadmap';
+    ```
+  - Sau đó, commit và push code lên GitHub cá nhân để Render tự động Redeploy.
 
 ---
 
-## BƯỚC 6: KIỂM TRA VÀ NGHIỆM THU CUỐI CÙNG
+## BƯỚC 6: KIỂM TRA ĐỐI CHIẾU VÀ NGHIỆM THU CUỐI CÙNG
 
-### 1. Hành động nghiệm thu
-- Khởi động NestJS Backend (cổng 3000), Counselor (cổng 8002), và Roadmap (cổng 8003).
-- Thực hiện giả lập gửi tin nhắn của học sinh qua cổng 3000. Chat 5-10 lượt để Counselor đánh giá đầy đủ hồ sơ.
-- Kiểm tra cờ `is_ready` trả về từ API `/chat` của NestJS.
-- Gửi yêu cầu sinh lộ trình qua `/roadmap/generate` và kiểm tra cấu trúc JSON trả về chứa đầy đủ:
-  - `user_profile_summary` (Tóm tắt tính cách).
-  - Danh sách `paths` (chứa ít nhất 1 lộ trình `academic` và 1 lộ trình `vocational`).
-  - Các chi tiết `role_progression`, `skill_tree` và `market_warning` (cảnh báo mức lương/địa phương tuyển dụng).
+### 1. Nghiệm thu E2E
+- Gọi API khởi tạo hội thoại qua endpoint `/chat` của NestJS Backend trên Render (VD: `https://skillcompass-backend.onrender.com/chat`).
+- Thực hiện chu kỳ chat 5-10 câu để hệ thống Evaluator ngầm đánh giá và tích lũy điểm UCEF chuẩn.
+- Gọi `/roadmap/generate` để sinh lộ trình đa chiều và đảm bảo phản hồi JSON chứa đầy đủ thông tin so khớp thực tế từ Neon và Pinecone.
 
-### 2. Lưu ý về Hiện tượng ngủ đông (Cold Start)
-- Nếu deploy các Python microservices lên các gói dịch vụ đám mây miễn phí (như Render Free), nếu không có lượt truy cập sau 15 phút, server sẽ tự động chuyển sang chế độ "ngủ đông".
-- Lượt gọi API đầu tiên từ NestJS sang Python service sẽ phản hồi rất chậm (mất khoảng 30 - 50 giây) để chờ máy chủ ảo khởi động lại. Đây là hiện tượng bình thường, không phải lỗi hệ thống.
+### 2. Lưu ý về hiện tượng ngủ đông (Cold Start)
+- Do chạy trên các gói máy chủ miễn phí của Render, nếu không có request trong 15 phút, các server NestJS, Counselor, và Roadmap sẽ tự ngủ đông.
+- Khi người dùng đầu tiên truy cập lại, thời gian phản hồi lượt đầu sẽ rất chậm (mất 30-50 giây) để Render khởi động lại container. Đây là hiện tượng bình thường của gói Free.
