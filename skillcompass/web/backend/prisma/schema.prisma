@@ -11,8 +11,8 @@ datasource db {
 
 model CareerTrack {
   id                  Int                 @id @default(autoincrement())
-  career_track        String              @db.VarChar(100)
-  track_type          String              @db.VarChar(50) // Free-form string classified by AI (e.g. IT, Business, Art, Vocational, General...)
+  career_track        String              @unique @db.VarChar(150)
+  track_type          String              @db.VarChar(100) // Lĩnh vực nghề nghiệp lớn (Industry/Category) phân loại diện rộng dựa trên nội dung thực tế
   description         String?
   avg_salary_min      Int?
   avg_salary_max      Int?
