@@ -103,15 +103,27 @@ function ResultsView({ onNavigate }: { onNavigate: (v: View) => void }) {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                   {(() => {
                     // Lấy trait_scores từ AI, fallback về mặc định
+                    // Backend dùng thang điểm 0-10, FE cần hiển thị 0-100%
                     const traitMap: Record<string, string> = {
+                      // Keys từ roadmap.service.ts (defaultTraits)
+                      adaptability_resilience: 'Thích ứng & Bền bỉ',
+                      analytical_thinking: 'Tư duy Phân tích',
+                      continuous_learning: 'Học tập liên tục',
+                      creativity_innovation: 'Sáng tạo & Đổi mới',
+                      critical_thinking: 'Tư duy Phản biện',
+                      effective_communication: 'Giao tiếp hiệu quả',
+                      problem_solving: 'Giải quyết vấn đề',
+                      responsibility_autonomy: 'Trách nhiệm & Tự chủ',
+                      team_collaboration: 'Làm việc nhóm',
+                      work_ethics_integrity: 'Đạo đức nghề nghiệp',
+                      // Keys từ counselor (legacy fallback)
                       logical_thinking: 'Tư duy Logic',
                       creativity: 'Sáng tạo',
                       adaptability: 'Thích ứng',
                       communication: 'Giao tiếp',
-                      teamwork: 'Làm việc nhóm',
+                      teamwork: 'Hợp tác nhóm',
                       leadership: 'Lãnh đạo',
                       technical_skill: 'Kỹ năng kỹ thuật',
-                      problem_solving: 'Giải quyết vấn đề',
                       emotional_intelligence: 'Trí tuệ cảm xúc',
                       market_awareness: 'Nhận thức thị trường',
                     };
@@ -119,7 +131,12 @@ function ResultsView({ onNavigate }: { onNavigate: (v: View) => void }) {
                       roadmapData?.profile?.trait_scores || {};
                     const scoreEntries = Object.entries(rawScores)
                       .filter(([, v]) => typeof v === 'number')
-                      .map(([k, v]) => ({ n: traitMap[k] || k, v: Math.round(Number(v)) }));
+                      .map(([k, v]) => {
+                        // Nếu điểm trong khoảng 0-10 → nhân 10 để ra %
+                        const numVal = Number(v);
+                        const pctVal = numVal <= 10 ? Math.round(numVal * 10) : Math.round(numVal);
+                        return { n: traitMap[k] || k, v: pctVal };
+                      });
                     const displayScores = scoreEntries.length > 0
                       ? scoreEntries
                       : [

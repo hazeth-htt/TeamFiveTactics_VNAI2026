@@ -138,6 +138,31 @@ export class RoadmapService {
       
       // Fallback mock nếu Python service bị lỗi/chưa bật
       this.logger.warn('Returning mock fallback roadmap due to API failure.');
+
+      // Tính match_score từ điểm thực tế (thang 0-10 → 0-100%)
+      const avgScore = (keys: string[], weights?: number[]) => {
+        const vals = keys.map((k, i) => {
+          const s = cleanCoreScores[k] || 5.0;
+          return weights ? s * (weights[i] || 1) : s;
+        });
+        const total = weights ? weights.reduce((a, b) => a + b, 0) : keys.length;
+        const weighted = vals.reduce((a, b) => a + b, 0);
+        return Math.round((weighted / total) * 10); // scale lên 0-100
+      };
+
+      const swScore = avgScore(
+        ['analytical_thinking', 'problem_solving', 'critical_thinking', 'continuous_learning'],
+        [1.5, 1.5, 1, 1]
+      );
+      const daScore = avgScore(
+        ['analytical_thinking', 'critical_thinking', 'effective_communication'],
+        [2, 1.5, 0.5]
+      );
+      const qaScore = avgScore(
+        ['responsibility_autonomy', 'work_ethics_integrity', 'problem_solving'],
+        [1.5, 1, 1]
+      );
+
       return {
         user_profile_summary: 'Học sinh có thiên hướng tư duy phân tích và kỹ thuật cao.',
         trait_scores: cleanCoreScores,
@@ -146,7 +171,7 @@ export class RoadmapService {
             path_id: 1,
             track_type: 'academic',
             career_track: 'Kỹ sư phần mềm',
-            match_score: 87,
+            match_score: swScore,
             why_it_fits: 'Phù hợp với thế mạnh tư duy độc lập và kỹ năng phân tích logic.',
             role_progression: [
               { level: 'Junior', title: 'Junior Software Engineer', description: 'Xây dựng tính năng và kiểm thử' },
@@ -159,7 +184,7 @@ export class RoadmapService {
             path_id: 2,
             track_type: 'vocational',
             career_track: 'Nhà phân tích dữ liệu (Data Analyst)',
-            match_score: 79,
+            match_score: daScore,
             why_it_fits: 'Phù hợp với khả năng tư duy số liệu và nhận diện xu hướng.',
             role_progression: [
               { level: 'Junior', title: 'Junior Data Analyst', description: 'Trực quan hóa dữ liệu và báo cáo' },
@@ -172,7 +197,7 @@ export class RoadmapService {
             path_id: 3,
             track_type: 'vocational',
             career_track: 'Kỹ sư kiểm thử phần mềm (QA Engineer)',
-            match_score: 73,
+            match_score: qaScore,
             why_it_fits: 'Tương thích với khả năng chú ý đến chi tiết và tư duy hệ thống.',
             role_progression: [
               { level: 'Junior', title: 'QA Tester', description: 'Viết test case và kiểm thử thủ công' },
