@@ -22,74 +22,72 @@ TEST_FRAMEWORK = {
 }
 
 def interactive_chat():
-    print("==================================================")
-    print("   SKILLCOMPASS INTERACTIVE CHAT CLIENT (AGENT 2)  ")
-    print("==================================================")
+    print("=" * 50)
+    print("   SKILLCOMPASS INTERACTIVE CHAT CLIENT (AGENT 2)")
+    print("=" * 50)
     print("Dùng để test tự động lưu lịch sử hội thoại và điểm số.")
     print("Gõ 'exit' hoặc 'quit' để thoát.\n")
-    
-    session_id = "test-session-interactive"
-    history = []
-    
-    # First assistant message starts the context
-    first_reply = "Chào bạn! Mình có thể hỗ trợ gì cho bạn hôm nay?"
-    print(f"AI: {first_reply}")
-    history.append({"role": "assistant", "content": first_reply})
+
+    conversation_history = []
+    current_state = None  # NestJS sẽ truyền state này, ở đây lưu trên RAM
 
     while True:
+        # Lấy tin nhắn đầu vào từ người dùng
+        user_input = input("Bạn: ").strip()
+        if user_input.lower() in ("exit", "quit", "thoát", ""):
+            print("Thoát chương trình.")
+            break
+
+        # Chuẩn bị payload theo API Contract mới
+        payload = {
+            "session_id": "interactive_test_session",
+            "message": user_input,
+            "target_field": "Vocational",
+            "evaluation_framework": TEST_FRAMEWORK,
+            "conversation_history": conversation_history,
+            "current_state": current_state  # Truyền state hiện tại (stateless design)
+        }
+
         try:
-            user_msg = input("\nBạn: ").strip()
-            if not user_msg:
-                continue
-            if user_msg.lower() in ("exit", "quit"):
-                print("Tạm biệt!")
+            response = requests.post(API_URL, json=payload, timeout=60)
+            response.raise_for_status()
+            data = response.json()
+
+            # Lấy mảng replies và in từng dòng (mỗi dòng là 1 bong bóng chat)
+            replies = data.get("replies", ["(Không có phản hồi)"])
+            print("\nAI:")
+            for line in replies:
+                print(f"  {line}")
+            print()
+
+            # Cập nhật state mới nhất từ server (EMA đã tính xong)
+            current_state = data.get("profile_update")
+
+            # Cập nhật lịch sử hội thoại (gộp tất cả replies thành 1 lượt assistant)
+            conversation_history.append({"role": "user", "content": user_input})
+            conversation_history.append({"role": "assistant", "content": "\n".join(replies)})
+
+            # Hiển thị hồ sơ đánh giá hiện tại
+            if current_state:
+                print("--- [Hồ sơ Đánh giá Hiện tại] ---")
+                print(f"  + Sẵn sàng sinh lộ trình (is_ready): {data.get('is_ready', False)}")
+                print(f"  + Điểm Core (core_scores): {json.dumps(current_state.get('core_scores', {}), ensure_ascii=False)}")
+                print(f"  + Độ tin cậy (confidence_scores): {json.dumps(current_state.get('confidence_scores', {}), ensure_ascii=False)}")
+                me = current_state.get("market_expectations", {})
+                print(f"  + Địa điểm: {me.get('preferred_locations', [])}")
+                print("-----------------------------------\n")
+
+            # Nếu đã đủ thông tin, dừng
+            if data.get("is_ready"):
+                print("✅ Đã thu thập đủ thông tin! Hệ thống sẽ sinh lộ trình nghề nghiệp...")
                 break
-            
-            # Prepare payload matching the NestJS contract
-            payload = {
-                "session_id": session_id,
-                "message": user_msg,
-                "target_field": "Vocational",
-                "evaluation_framework": TEST_FRAMEWORK,
-                "conversation_history": history
-            }
-            
-            # Call FastAPI endpoint
-            response = requests.post(API_URL, json=payload)
-            if response.status_code != 200:
-                print(f"\n[Lỗi API] Status code {response.status_code}: {response.text}")
-                continue
-                
-            res_data = response.json()
-            reply = res_data["reply"]
-            profile = res_data["profile_update"]
-            is_ready = res_data["is_ready"]
-            
-            # Print AI response
-            print(f"\nAI: {reply}")
-            
-            # Print Current Scores
-            print("\n--- [Hồ sơ Đánh giá Hiện tại] ---")
-            print(f"  + Trạng thái sẵn sàng (is_ready): {is_ready}")
-            print(f"  + Điểm tính cách (trait_scores): {json.dumps(profile['trait_scores'], ensure_ascii=False)}")
-            print(f"  + Độ tin cậy (confidence_scores): {json.dumps(profile['confidence_scores'], ensure_ascii=False)}")
-            print(f"  + Kỳ vọng thị trường: {json.dumps(profile['market_expectations'], ensure_ascii=False)}")
-            print("---------------------------------")
-            
-            # Update history for next turn
-            history.append({"role": "user", "content": user_msg})
-            history.append({"role": "assistant", "content": reply})
-            
-            if is_ready:
-                print("\n[HỆ THỐNG] Hồ sơ đã thu thập đủ thông tin (is_ready = True). Luồng chat kết thúc!")
-                break
-                
-        except KeyboardInterrupt:
-            print("\nThoát chương trình.")
-            break
+
+        except requests.exceptions.ConnectionError:
+            print("❌ Không thể kết nối đến server. Hãy đảm bảo FastAPI đang chạy trên port 8002.\n")
+        except requests.exceptions.Timeout:
+            print("⏱️ Server mất quá nhiều thời gian để phản hồi. Thử lại sau.\n")
         except Exception as e:
-            print(f"\n[Lỗi kết nối]: {e}")
-            break
+            print(f"❌ Lỗi: {e}\n")
 
 if __name__ == "__main__":
     interactive_chat()
