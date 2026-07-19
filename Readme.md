@@ -1,6 +1,6 @@
-# Career Pilot (SkillCompass)
+# Career Pilot
 
-Career Pilot (also known as SkillCompass) is an end-to-end, AI-powered career counseling and adaptive roadmap planning system. It bridges the gap between students' true capacities (derived through thấu cảm / implicit psychological profiling) and real-time labor market hiring demand. Designed as a Hybrid Monolith Web + AI Microservices architecture, it integrates Next.js, NestJS, Neon PostgreSQL (SQL DB), Pinecone (Vector DB), and Redis (Session Cache) to deliver highly personalized, data-driven, and bias-guarded career paths.
+Career Pilot is an end-to-end, AI-powered career counseling and adaptive roadmap planning system. It bridges the gap between students' true capacities (derived through thấu cảm / implicit psychological profiling) and real-time labor market hiring demand. Designed as a Hybrid Monolith Web + AI Microservices architecture, it integrates Next.js, NestJS, Neon PostgreSQL (SQL DB), Pinecone (Vector DB), and Redis (Session Cache) to deliver highly personalized, data-driven, and bias-guarded career paths.
 
 ---
 
