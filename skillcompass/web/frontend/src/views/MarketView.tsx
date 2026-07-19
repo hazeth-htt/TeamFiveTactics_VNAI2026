@@ -75,15 +75,28 @@ function MarketView({ onNavigate }: { onNavigate: (v: View) => void }) {
                       onClick={() => setSelectedIndustry(ind)}
                       style={{
                         background: ind.gradient || 'linear-gradient(135deg, #0260FF 0%, #00C6FF 100%)',
-                        padding: '16px 24px', cursor: 'pointer', transition: 'opacity 0.2s',
+                        padding: '16px 24px', cursor: 'pointer',
                         height: '88px', display: 'flex', alignItems: 'center'
                       }}
-                      onMouseOver={(e) => { e.currentTarget.style.opacity = '0.9'; }}
-                      onMouseOut={(e) => { e.currentTarget.style.opacity = '1'; }}
                     >
                       <h3 style={{ fontWeight: 600, fontSize: '18px', lineHeight: '24px', margin: 0, color: '#FFFFFF', display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
                         <span>{ind.title}</span>
-                        <span style={{ fontSize: '11px', background: 'rgba(255,255,255,0.2)', padding: '4px 8px', borderRadius: '10px', fontWeight: 500, letterSpacing: '0.5px', whiteSpace: 'nowrap', marginLeft: '12px' }}>Xem tất cả &rarr;</span>
+                        <span
+                          style={{
+                            fontSize: '11px',
+                            color: '#FFFFFF',
+                            fontWeight: 700,
+                            letterSpacing: '0.3px',
+                            whiteSpace: 'nowrap',
+                            marginLeft: '12px',
+                            textDecoration: 'none',
+                            transition: 'text-decoration 0.2s'
+                          }}
+                          onMouseOver={(e) => { e.currentTarget.style.textDecoration = 'underline'; }}
+                          onMouseOut={(e) => { e.currentTarget.style.textDecoration = 'none'; }}
+                        >
+                          Xem tất cả &rarr;
+                        </span>
                       </h3>
                     </div>
                     <div style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '16px', flex: 1 }}>
