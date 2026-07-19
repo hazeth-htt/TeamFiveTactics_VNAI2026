@@ -413,7 +413,9 @@ function HomeView({ onNavigate, isLoggedIn, onOpenAuth }: { onNavigate: (v: View
               textTransform: 'uppercase',
               letterSpacing: '2px',
               color: 'rgba(255, 255, 255, 0.8)',
-              marginBottom: '16px'
+              marginBottom: '16px',
+              fontFamily: '"Google Sans Flex", sans-serif',
+              fontStyle: 'normal'
             }}>
               Triết lý định hướng Career Pilot
             </span>
@@ -424,6 +426,7 @@ function HomeView({ onNavigate, isLoggedIn, onOpenAuth }: { onNavigate: (v: View
               fontWeight: 400,
               margin: 0,
               fontFamily: '"Google Sans Flex", sans-serif',
+              fontStyle: 'normal',
               letterSpacing: '-0.1px'
             }}>
               "Sự nghiệp thành công không xây dựng trên xu thế nhất thời, mà được kiến tạo từ sự thấu hiểu năng lực bản thân và nhịp đập thực tế của thị trường lao động."
