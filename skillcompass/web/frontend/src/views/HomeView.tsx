@@ -375,6 +375,65 @@ function HomeView({ onNavigate, isLoggedIn, onOpenAuth }: { onNavigate: (v: View
           </div>
         </section>
 
+        {/* Philosophy Quote Section */}
+        <section className="philosophy-section" style={{
+          marginTop: '32px',
+          marginBottom: '0px',
+          borderRadius: '24px',
+          padding: '64px 48px',
+          background: 'linear-gradient(53deg, #0260FF 9.29%, #40A2FF 48.23%, #A8BEFF 82.56%)',
+          textAlign: 'center',
+          boxShadow: '0 20px 40px rgba(2, 96, 255, 0.12)',
+          color: '#FFFFFF',
+          position: 'relative',
+          overflow: 'hidden'
+        }}>
+          {/* Decorative background shapes */}
+          <div style={{ position: 'absolute', top: '-10%', left: '-10%', width: '200px', height: '200px', borderRadius: '50%', background: 'rgba(255,255,255,0.05)', filter: 'blur(20px)' }} />
+          <div style={{ position: 'absolute', bottom: '-10%', right: '-10%', width: '200px', height: '200px', borderRadius: '50%', background: 'rgba(255,255,255,0.05)', filter: 'blur(20px)' }} />
+
+          {/* SVG Quote Icon as Background Element */}
+          <svg width="120" height="120" viewBox="0 0 24 24" fill="rgba(255,255,255,0.06)" stroke="none" style={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            pointerEvents: 'none',
+            zIndex: 0
+          }}>
+            <path d="M3 21h3a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3v2a4 4 0 0 0 4 4H3zm11 0h3a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2h-3v2a4 4 0 0 0 4 4h-3z" transform="rotate(180 12 12)" />
+          </svg>
+
+          <div style={{ position: 'relative', zIndex: 1, maxWidth: '800px', margin: '0 auto' }}>
+            {/* Triết lý nằm bên trên quote */}
+            <span style={{
+              display: 'block',
+              fontSize: '14px',
+              fontWeight: 700,
+              textTransform: 'uppercase',
+              letterSpacing: '2px',
+              color: 'rgba(255, 255, 255, 0.8)',
+              marginBottom: '16px',
+              fontFamily: '"Google Sans Flex", sans-serif',
+              fontStyle: 'normal'
+            }}>
+              Triết lý định hướng Career Pilot
+            </span>
+
+            <blockquote className="philosophy-quote" style={{
+              fontSize: '18px',
+              lineHeight: '28px',
+              fontWeight: 400,
+              margin: 0,
+              fontFamily: '"Google Sans Flex", sans-serif',
+              fontStyle: 'normal',
+              letterSpacing: '-0.1px'
+            }}>
+              "Sự nghiệp thành công không xây dựng trên xu thế nhất thời, mà được kiến tạo từ sự thấu hiểu năng lực bản thân và nhịp đập thực tế của thị trường lao động."
+            </blockquote>
+          </div>
+        </section>
+
         {/* NEWS SECTION */}
         <section style={{ marginTop: '32px', position: 'relative' }}>
           {/* Section corner shapes: Left */}
@@ -559,64 +618,6 @@ function HomeView({ onNavigate, isLoggedIn, onOpenAuth }: { onNavigate: (v: View
           </div>
         </section>
 
-        {/* Philosophy Quote Section */}
-        <section className="philosophy-section" style={{
-          marginTop: '32px',
-          marginBottom: '64px',
-          borderRadius: '24px',
-          padding: '64px 48px',
-          background: 'linear-gradient(53deg, #0260FF 9.29%, #40A2FF 48.23%, #A8BEFF 82.56%)',
-          textAlign: 'center',
-          boxShadow: '0 20px 40px rgba(2, 96, 255, 0.12)',
-          color: '#FFFFFF',
-          position: 'relative',
-          overflow: 'hidden'
-        }}>
-          {/* Decorative background shapes */}
-          <div style={{ position: 'absolute', top: '-10%', left: '-10%', width: '200px', height: '200px', borderRadius: '50%', background: 'rgba(255,255,255,0.05)', filter: 'blur(20px)' }} />
-          <div style={{ position: 'absolute', bottom: '-10%', right: '-10%', width: '200px', height: '200px', borderRadius: '50%', background: 'rgba(255,255,255,0.05)', filter: 'blur(20px)' }} />
-
-          {/* SVG Quote Icon as Background Element */}
-          <svg width="120" height="120" viewBox="0 0 24 24" fill="rgba(255,255,255,0.06)" stroke="none" style={{
-            position: 'absolute',
-            top: '50%',
-            left: '50%',
-            transform: 'translate(-50%, -50%)',
-            pointerEvents: 'none',
-            zIndex: 0
-          }}>
-            <path d="M3 21h3a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3v2a4 4 0 0 0 4 4H3zm11 0h3a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2h-3v2a4 4 0 0 0 4 4h-3z" transform="rotate(180 12 12)" />
-          </svg>
-
-          <div style={{ position: 'relative', zIndex: 1, maxWidth: '800px', margin: '0 auto' }}>
-            {/* Triết lý nằm bên trên quote */}
-            <span style={{
-              display: 'block',
-              fontSize: '14px',
-              fontWeight: 700,
-              textTransform: 'uppercase',
-              letterSpacing: '2px',
-              color: 'rgba(255, 255, 255, 0.8)',
-              marginBottom: '16px',
-              fontFamily: '"Google Sans Flex", sans-serif',
-              fontStyle: 'normal'
-            }}>
-              Triết lý định hướng Career Pilot
-            </span>
-
-            <blockquote className="philosophy-quote" style={{
-              fontSize: '18px',
-              lineHeight: '28px',
-              fontWeight: 400,
-              margin: 0,
-              fontFamily: '"Google Sans Flex", sans-serif',
-              fontStyle: 'normal',
-              letterSpacing: '-0.1px'
-            }}>
-              "Sự nghiệp thành công không xây dựng trên xu thế nhất thời, mà được kiến tạo từ sự thấu hiểu năng lực bản thân và nhịp đập thực tế của thị trường lao động."
-            </blockquote>
-          </div>
-        </section>
 
       </div>
     </div>
