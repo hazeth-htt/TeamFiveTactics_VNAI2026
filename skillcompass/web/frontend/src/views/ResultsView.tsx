@@ -77,9 +77,42 @@ function ResultsView({ onNavigate }: { onNavigate: (v: View) => void }) {
   return (
     <div className="view-container" style={{ minHeight: '100vh', background: 'transparent', padding: '64px 48px', fontFamily: '"Google Sans Flex", sans-serif' }}>
       <div className="view-max-width" style={{ maxWidth: '1100px', margin: '0 auto' }}>
-        <h2 style={{ fontWeight: 500, fontSize: '32px', lineHeight: '36px', color: '#06040E', marginBottom: '24px' }}>
-          Lộ trình Sự nghiệp Đề xuất của Bạn
-        </h2>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px', gap: '16px', flexWrap: 'wrap' }}>
+          <h2 style={{ fontWeight: 500, fontSize: '32px', lineHeight: '36px', color: '#06040E', margin: 0 }}>
+            Lộ trình Sự nghiệp Đề xuất của Bạn
+          </h2>
+          <button
+            onClick={() => {
+              if (typeof window !== 'undefined') {
+                sessionStorage.removeItem('skillcompass_session_id');
+                localStorage.removeItem('skillcompass_session_id');
+              }
+              onNavigate('prechat');
+            }}
+            style={{
+              display: 'flex', alignItems: 'center', gap: '8px',
+              padding: '10px 20px', borderRadius: '24px', cursor: 'pointer',
+              fontFamily: '"Google Sans Flex", sans-serif',
+              fontWeight: 500, fontSize: '14px', lineHeight: '20px',
+              color: '#0260FF', background: '#F0F4FF',
+              border: '1px solid rgba(2,96,255,0.2)',
+              transition: 'all 0.2s', whiteSpace: 'nowrap'
+            }}
+            onMouseOver={(e) => {
+              e.currentTarget.style.background = '#E0EAFF';
+              e.currentTarget.style.borderColor = 'rgba(2,96,255,0.4)';
+            }}
+            onMouseOut={(e) => {
+              e.currentTarget.style.background = '#F0F4FF';
+              e.currentTarget.style.borderColor = 'rgba(2,96,255,0.2)';
+            }}
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+            </svg>
+            Bạn thấy chưa phù hợp? Hãy cùng định hướng thêm
+          </button>
+        </div>
 
         {isLoading ? (
           <div className="gemini-card" style={{ borderRadius: '20px', padding: '64px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px' }}>
