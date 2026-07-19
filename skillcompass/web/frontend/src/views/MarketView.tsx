@@ -440,7 +440,7 @@ function MarketView({ onNavigate }: { onNavigate: (v: View) => void }) {
               {isDetailLoading ? (
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '350px', gap: '16px', padding: '40px' }}>
                   <Loader2 className="animate-spin" size={36} color="#0260FF" />
-                  <span style={{ fontSize: '16px', color: '#5F6368', fontWeight: 500 }}>Đang tải lộ trình và cây kỹ năng của {selectedJob}...</span>
+                  <span style={{ fontFamily: '"Google Sans Flex", sans-serif', fontSize: '16px', color: '#5F6368', fontWeight: 500 }}>Đang tải lộ trình và cây kỹ năng của {selectedJob}...</span>
                 </div>
               ) : jobDetail ? (
                 <>
