@@ -379,6 +379,7 @@ function MarketView({ onNavigate }: { onNavigate: (v: View) => void }) {
 
             </div>
           </div>
+        )}
         {/* Industry Jobs List Modal Popup */}
         {selectedIndustry && (
           <div style={{
